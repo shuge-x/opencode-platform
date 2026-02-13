@@ -47,11 +47,12 @@ async def health_check():
     return {"status": "healthy"}
 
 # TODO: 添加API路由
-from app.api import auth, users, sessions, skills, apps, websocket
+from app.api import auth, users, sessions, skills, apps, websocket, files
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
 app.include_router(skills.router, prefix="/api/skills", tags=["skills"])
 app.include_router(apps.router, prefix="/api/apps", tags=["apps"])
+app.include_router(files.router, prefix="/api/files", tags=["files"])
 app.include_router(websocket.router, tags=["websocket"])

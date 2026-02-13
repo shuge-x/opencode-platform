@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: opencode-postgres
+    environment:
+      POSTGRES_USER: opencode
+      POSTGRES_PASSWORD: opencode123
+      POSTGRES_DB: opencode
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docs/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./docs/database/indexes.sql:/docker-entrypoint-initdb.d/02-indexes.sql
+    networks:
+      - opencode-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: opencode-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - opencode-network
+
+  # FastAPI后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: opencode-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://opencode:opencode123@postgres:5432/opencode
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: your-secret-key-change-in-production
+      CORS_ORIGINS: '["http://localhost:3000"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    networks:
+      - opencode-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery Worker
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: opencode-celery-worker
+    environment:
+      DATABASE_URL: postgresql+asyncpg://opencode:opencode123@postgres:5432/opencode
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: your-secret-key-change-in-production
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    networks:
+      - opencode-network
+    command: celery -A tasks.celery_app worker --loglevel=info --concurrency=4
+
+  # React前端
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: opencode-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - opencode-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
+
+networks:
+  opencode-network:
+    driver: bridge
