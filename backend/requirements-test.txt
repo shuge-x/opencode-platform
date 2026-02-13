@@ -1,0 +1,13 @@
+# 测试框架
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+
+# 异步数据库
+aiosqlite==0.19.0
+
+# HTTP客户端（用于API测试）
+httpx==0.26.0
+
+# 代码覆盖率
+coverage==7.4.0
