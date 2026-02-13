@@ -5,6 +5,9 @@ import MainLayout from '@/components/Layout/MainLayout'
 import HomePage from '@/pages/Home'
 import LoginPage from '@/pages/Login'
 import ChatPage from '@/pages/Chat'
+import SkillsPage from '@/pages/Skills'
+import FilesPage from '@/pages/Files'
+import SettingsPage from '@/pages/Settings'
 import { useAuthStore } from '@/stores/authStore'
 
 // Protected Route
@@ -32,6 +35,9 @@ function App() {
           }>
             <Route index element={<HomePage />} />
             <Route path="chat" element={<ChatPage />} />
+            <Route path="skills" element={<SkillsPage />} />
+            <Route path="files" element={<FilesPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

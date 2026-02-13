@@ -12,6 +12,7 @@ export default function MainLayout() {
     { key: '/', icon: <HomeOutlined />, label: '首页' },
     { key: '/chat', icon: <ChatOutlined />, label: '对话' },
     { key: '/skills', icon: <AppstoreOutlined />, label: '技能' },
+    { key: '/files', icon: <AppstoreOutlined />, label: '文件' },
     { key: '/settings', icon: <SettingOutlined />, label: '设置' },
   ]
 

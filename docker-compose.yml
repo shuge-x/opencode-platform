@@ -5,16 +5,21 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: opencode-postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: opencode
-      POSTGRES_PASSWORD: opencode123
-      POSTGRES_DB: opencode
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-opencode}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docs/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./docs/database/indexes.sql:/docker-entrypoint-initdb.d/02-indexes.sql
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - opencode-network
 
@@ -22,10 +27,17 @@ services:
   redis:
     image: redis:7-alpine
     container_name: opencode-redis
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
     volumes:
       - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - opencode-network
 
@@ -35,61 +47,58 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: opencode-backend
+    restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql+asyncpg://opencode:opencode123@postgres:5432/opencode
-      REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: your-secret-key-change-in-production
-      CORS_ORIGINS: '["http://localhost:3000"]'
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-      - redis
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-opencode}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis123}@redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this-in-production}
+      - DEBUG=${DEBUG:-False}
+      - BASE_DIR=/app/uploads
     volumes:
       - ./backend:/app
       - uploads_data:/app/uploads
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - opencode-network
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
 
-  # Celery Worker
+  # Celery Worker (可选)
   celery-worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: opencode-celery-worker
+    restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql+asyncpg://opencode:opencode123@postgres:5432/opencode
-      REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: your-secret-key-change-in-production
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-opencode}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis123}@redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this-in-production}
+    volumes:
+      - ./backend:/app
     depends_on:
       - postgres
       - redis
-    volumes:
-      - ./backend:/app
     networks:
       - opencode-network
-    command: celery -A tasks.celery_app worker --loglevel=info --concurrency=4
-
-  # React前端
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: opencode-frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - opencode-network
-    command: npm run dev
+    command: celery -A tasks.celery_app worker --loglevel=info
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
   uploads_data:
+    driver: local
 
 networks:
   opencode-network:

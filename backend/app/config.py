@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "OpenCode Web Platform"
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
+    BASE_DIR: str = "/tmp"  # 基础目录，用于文件存储等
     
     # API配置
     API_V1_PREFIX: str = "/api/v1"
