@@ -1,75 +1,84 @@
 """
-技能相关的Pydantic schemas
+技能 Pydantic 模型
 """
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any
 from datetime import datetime
-from typing import Optional, List
-from pydantic import BaseModel, Field, ConfigDict
 
 
-class SkillBase(BaseModel):
-    """技能基础模型"""
-    name: str = Field(..., min_length=1, max_length=100, description="技能名称")
-    description: Optional[str] = Field(None, description="技能描述")
-    category: Optional[str] = Field(None, max_length=50, description="分类")
-    prompt_template: str = Field(..., description="提示词模板")
-    tags: Optional[List[str]] = Field(default=[], description="标签")
-    is_public: bool = Field(default=False, description="是否公开")
-
-
-class SkillCreate(SkillBase):
-    """技能创建模型"""
-    config: Optional[dict] = Field(default={}, description="技能配置")
-    
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "name": "代码审查助手",
-                "description": "帮助审查代码质量和安全性",
-                "category": "development",
-                "prompt_template": "请审查以下代码：\n{code}\n\n关注点：\n1. 代码质量\n2. 安全性\n3. 性能",
-                "tags": ["code", "review", "development"],
-                "is_public": False,
-                "config": {}
-            }
-        }
-    )
+class SkillCreate(BaseModel):
+    """创建技能"""
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = None
+    skill_type: str = "custom"
+    config: Optional[Dict[str, Any]] = None
+    tags: Optional[List[str]] = None
+    is_public: bool = False
 
 
 class SkillUpdate(BaseModel):
-    """技能更新模型"""
+    """更新技能"""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
-    category: Optional[str] = Field(None, max_length=50)
-    prompt_template: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
     is_public: Optional[bool] = None
-    config: Optional[dict] = None
-    is_active: Optional[bool] = None
-    
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "name": "更新的技能名称",
-                "description": "更新的描述"
-            }
-        }
-    )
 
 
-class SkillResponse(SkillBase):
-    """技能响应模型"""
+class SkillFileCreate(BaseModel):
+    """创建技能文件"""
+    filename: str
+    file_path: str
+    file_type: str
+    content: Optional[str] = None
+
+
+class SkillFileUpdate(BaseModel):
+    """更新技能文件"""
+    content: Optional[str] = None
+    filename: Optional[str] = None
+
+
+class SkillFileResponse(BaseModel):
+    """技能文件响应"""
     id: int
-    slug: str
-    user_id: int
-    config: Optional[dict] = {}
-    is_active: bool
-    is_verified: bool
-    use_count: int
-    like_count: int
+    skill_id: int
+    filename: str
+    file_path: str
+    file_type: str
+    content: Optional[str] = None
+    git_last_commit: Optional[str] = None
+    git_last_modified: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-    
-    model_config = ConfigDict(from_attributes=True)
+
+    class Config:
+        from_attributes = True
+
+
+class SkillResponse(BaseModel):
+    """技能响应"""
+    id: int
+    user_id: int
+    name: str
+    description: Optional[str] = None
+    version: str
+    skill_type: str
+    config: Optional[Dict[str, Any]] = None
+    tags: Optional[List[str]] = None
+    git_repo_url: Optional[str] = None
+    git_branch: str
+    is_active: bool
+    is_public: bool
+    execution_count: int
+    success_count: int
+    failure_count: int
+    created_at: datetime
+    updated_at: datetime
+    files: List[SkillFileResponse] = []
+
+    class Config:
+        from_attributes = True
 
 
 class SkillListResponse(BaseModel):
@@ -79,15 +88,50 @@ class SkillListResponse(BaseModel):
     page: int
     page_size: int
     has_more: bool
-    
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "items": [],
-                "total": 5,
-                "page": 1,
-                "page_size": 20,
-                "has_more": False
-            }
-        }
-    )
+
+
+class SkillExecutionCreate(BaseModel):
+    """创建技能执行"""
+    skill_id: int
+    input_params: Optional[Dict[str, Any]] = None
+
+
+class SkillExecutionLogResponse(BaseModel):
+    """技能执行日志响应"""
+    id: int
+    execution_id: int
+    log_level: str
+    message: str
+    metadata: Optional[Dict[str, Any]] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SkillExecutionResponse(BaseModel):
+    """技能执行响应"""
+    id: int
+    skill_id: int
+    user_id: int
+    status: str
+    input_params: Optional[Dict[str, Any]] = None
+    output_result: Optional[str] = None
+    error_message: Optional[str] = None
+    container_id: Optional[str] = None
+    execution_time: Optional[int] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    created_at: datetime
+    logs: List[SkillExecutionLogResponse] = []
+
+    class Config:
+        from_attributes = True
+
+
+class SkillTemplateResponse(BaseModel):
+    """技能模板响应"""
+    name: str
+    description: str
+    file_structure: Dict[str, str]  # {filename: content}
+    skill_type: str
