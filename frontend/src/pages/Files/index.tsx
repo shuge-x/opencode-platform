@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Upload, Button, Table, message } from 'antd'
 import { UploadOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { UploadFile } from 'antd/es/upload/interface'
@@ -119,6 +119,3 @@ export default function FilesPage() {
     </div>
   )
 }
-
-// 添加useEffect导入
-import { useEffect } from 'react'
