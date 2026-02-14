@@ -1,0 +1,89 @@
+.testerContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.paramCard {
+  background: #fff;
+}
+
+.paramsInput {
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+.resultCard {
+  background: #fff;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.executingStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.executingStatus p {
+  margin-top: 16px;
+  color: #666;
+}
+
+.pollingHint {
+  font-size: 12px;
+  color: #999;
+}
+
+.resultDetails {
+  margin-bottom: 16px;
+}
+
+.detailItem {
+  margin-bottom: 8px;
+}
+
+.detailItem code {
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.logList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.logItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.logItem.error {
+  background: #fff1f0;
+  border-left: 3px solid #ff4d4f;
+}
+
+.logItem.info {
+  background: #f0f5ff;
+  border-left: 3px solid #1890ff;
+}
+
+.logMessage {
+  flex: 1;
+}
+
+.logTime {
+  font-size: 12px;
+  color: #999;
+}

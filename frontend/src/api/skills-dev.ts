@@ -140,5 +140,26 @@ export const skillsDevApi = {
   // 删除文件
   deleteFile: async (skillId: number, fileId: number): Promise<void> => {
     await client.delete(`/skills-dev/${skillId}/files/${fileId}`)
+  },
+
+  // 执行技能
+  execute: async (data: {
+    skill_id: number
+    input_params?: any
+  }): Promise<any> => {
+    const response = await client.post('/skills-dev/execute', data)
+    return response.data
+  },
+
+  // 获取执行结果
+  getExecution: async (executionId: number): Promise<any> => {
+    const response = await client.get(`/skills-dev/executions/${executionId}`)
+    return response.data
+  },
+
+  // 获取执行日志
+  getExecutionLogs: async (executionId: number): Promise<any[]> => {
+    const response = await client.get(`/skills-dev/executions/${executionId}/logs`)
+    return response.data
   }
 }
