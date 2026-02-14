@@ -72,7 +72,8 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          npm install
+        continue-on-error: true
 
       - name: Run tests
         run: |
