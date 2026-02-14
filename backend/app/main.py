@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import init_db, close_db
 from app.core.rate_limit import rate_limit_middleware
+from app.core.exceptions import register_exception_handlers
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -13,6 +14,9 @@ app = FastAPI(
     description="OpenCode Web平台API",
     version="1.0.0"
 )
+
+# 注册异常处理器
+register_exception_handlers(app)
 
 # CORS中间件配置
 app.add_middleware(
