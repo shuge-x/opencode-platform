@@ -83,3 +83,15 @@ dmypy.json
 *.bak
 *.swp
 cache/
+
+# OpenClaw workspace files (private)
+MEMORY.md
+memory/
+AGENTS.md
+USER.md
+SOUL.md
+IDENTITY.md
+HEARTBEAT.md
+TOOLS.md
+BOOTSTRAP.md
+*.db
