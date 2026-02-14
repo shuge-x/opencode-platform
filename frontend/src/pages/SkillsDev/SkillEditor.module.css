@@ -1,0 +1,58 @@
+.editorLayout {
+  height: calc(100vh - 64px);
+  background: #fff;
+}
+
+.fileTreeSider {
+  background: #fafafa;
+  border-right: 1px solid #e8e8e8;
+}
+
+.siderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.siderHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+}
+
+.editorToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+  color: #fff;
+}
+
+.fileInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbarActions {
+  display: flex;
+  gap: 8px;
+}
+
+.emptyEditor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: #1e1e1e;
+}
