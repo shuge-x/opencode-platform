@@ -21,6 +21,11 @@ from app.schemas.skills_hub import (
     PermissionGrantRequest, PermissionResponse,
     SkillHubListResponse, SkillHubSearchRequest
 )
+from app.schemas.review import (
+    ReviewCreateRequest, ReviewUpdateRequest, ReviewResponse, ReviewListResponse,
+    RatingRequest, RatingResponse, RatingStatsResponse,
+    BookmarkCreateRequest, BookmarkUpdateRequest, BookmarkResponse, BookmarkListResponse
+)
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin",
@@ -37,5 +42,9 @@ __all__ = [
     "SkillPackageResponse", "UploadResponse",
     "HubVersionCreateRequest", "HubVersionListResponse",
     "PermissionGrantRequest", "PermissionResponse",
-    "SkillHubListResponse", "SkillHubSearchRequest"
+    "SkillHubListResponse", "SkillHubSearchRequest",
+    # Review, Rating, Bookmark
+    "ReviewCreateRequest", "ReviewUpdateRequest", "ReviewResponse", "ReviewListResponse",
+    "RatingRequest", "RatingResponse", "RatingStatsResponse",
+    "BookmarkCreateRequest", "BookmarkUpdateRequest", "BookmarkResponse", "BookmarkListResponse"
 ]

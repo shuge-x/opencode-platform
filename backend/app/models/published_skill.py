@@ -1,7 +1,7 @@
 """
 已发布技能数据模型
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, JSON, Numeric
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, JSON, Numeric, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -138,9 +138,56 @@ class SkillReview(Base):
     title = Column(String(200), nullable=True)
     content = Column(Text, nullable=True)
 
+    # 审核状态
+    status = Column(String(20), default="approved", nullable=False)  # pending, approved, rejected
+    is_edited = Column(Boolean, default=False, nullable=False)  # 是否编辑过
+
     # 时间戳
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     def __repr__(self):
         return f"<SkillReview(skill_id={self.published_skill_id}, user_id={self.user_id}, rating={self.rating})>"
+
+
+class SkillRating(Base):
+    """技能评分（独立于评论）"""
+    __tablename__ = "skill_ratings"
+    __table_args__ = (
+        UniqueConstraint('published_skill_id', 'user_id', name='uq_skill_rating_user'),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    published_skill_id = Column(Integer, ForeignKey("published_skills.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+
+    # 评分
+    rating = Column(Integer, nullable=False)  # 1-5星
+
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f"<SkillRating(skill_id={self.published_skill_id}, user_id={self.user_id}, rating={self.rating})>"
+
+
+class SkillBookmark(Base):
+    """技能收藏"""
+    __tablename__ = "skill_bookmarks"
+    __table_args__ = (
+        UniqueConstraint('published_skill_id', 'user_id', name='uq_skill_bookmark_user'),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    published_skill_id = Column(Integer, ForeignKey("published_skills.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+
+    # 收藏信息
+    notes = Column(Text, nullable=True)  # 用户备注
+
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f"<SkillBookmark(skill_id={self.published_skill_id}, user_id={self.user_id})>"

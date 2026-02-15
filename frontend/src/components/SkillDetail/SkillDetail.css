@@ -136,6 +136,29 @@
   align-items: center;
 }
 
+.related-placeholder {
+  padding: 32px;
+  text-align: center;
+  background: #fafafa;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+/* Tab 图标样式 */
+.detail-tabs .ant-tabs-tab .anticon {
+  margin-right: 8px;
+}
+
+/* 评论区样式调整 */
+.detail-tabs .comment-section {
+  padding: 0;
+}
+
+/* 评分组件样式调整 */
+.detail-tabs .rating-display {
+  padding: 0 0 16px;
+}
+
 /* 响应式 */
 @media (max-width: 768px) {
   .skill-detail-drawer .ant-drawer-content-wrapper {

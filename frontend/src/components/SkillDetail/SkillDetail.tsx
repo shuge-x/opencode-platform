@@ -1,16 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Drawer,
   Descriptions,
   Tag,
   Button,
-  Rate,
   Tabs,
   Typography,
   Space,
   Divider,
   Avatar,
-  Tooltip,
+  message,
 } from 'antd'
 import {
   DownloadOutlined,
@@ -20,12 +19,16 @@ import {
   BookOutlined,
   UserOutlined,
   CalendarOutlined,
+  HistoryOutlined,
+  AppstoreAddOutlined,
 } from '@ant-design/icons'
 import type { PublishedSkill } from '@/api/skillSearch'
+import RatingDisplay from '@/components/RatingDisplay'
+import CommentSection from '@/components/CommentSection'
+import FavoriteButton from '@/components/FavoriteButton'
 import './SkillDetail.css'
 
 const { Title, Paragraph, Text } = Typography
-const { TabPane } = Tabs
 
 interface SkillDetailProps {
   skill: PublishedSkill | null
@@ -33,6 +36,7 @@ interface SkillDetailProps {
   onClose: () => void
   onInstall?: (skillId: number) => void
   installLoading?: boolean
+  currentUserId?: number
 }
 
 export default function SkillDetail({
@@ -41,18 +45,29 @@ export default function SkillDetail({
   onClose,
   onInstall,
   installLoading,
+  currentUserId,
 }: SkillDetailProps) {
+  const [activeTab, setActiveTab] = useState('description')
+
   if (!skill) return null
-  
+
   const isPaid = parseFloat(skill.price) > 0
-  
+
+  const handleInstall = () => {
+    onInstall?.(skill.id)
+  }
+
+  const handleRatingChange = (rating: number) => {
+    message.success(`评分成功: ${rating} 星`)
+  }
+
   return (
     <Drawer
       title={null}
       placement="right"
       onClose={onClose}
       open={open}
-      width={600}
+      width={700}
       className="skill-detail-drawer"
     >
       {/* 头部 */}
@@ -73,21 +88,24 @@ export default function SkillDetail({
           </Space>
         </div>
       </div>
-      
+
       {/* 操作按钮 */}
       <div className="detail-actions">
-        <Button
-          type="primary"
-          size="large"
-          icon={<DownloadOutlined />}
-          onClick={() => onInstall?.(skill.id)}
-          loading={installLoading}
-          block
-        >
-          {isPaid ? `¥${skill.price} - 购买并安装` : '安装'}
-        </Button>
+        <Space style={{ width: '100%' }} direction="vertical">
+          <Button
+            type="primary"
+            size="large"
+            icon={<DownloadOutlined />}
+            onClick={handleInstall}
+            loading={installLoading}
+            block
+          >
+            {isPaid ? `¥${skill.price} - 购买并安装` : '安装'}
+          </Button>
+          <FavoriteButton skillId={skill.id} size="large" block />
+        </Space>
       </div>
-      
+
       {/* 统计信息 */}
       <div className="detail-stats">
         <div className="stat-box">
@@ -110,18 +128,18 @@ export default function SkillDetail({
           <div className="stat-label">安装</div>
         </div>
       </div>
-      
+
       <Divider />
-      
+
       {/* 标签页 */}
-      <Tabs defaultActiveKey="description" className="detail-tabs">
-        <TabPane tab="简介" key="description">
+      <Tabs activeKey={activeTab} onChange={setActiveTab} className="detail-tabs">
+        <Tabs.TabPane tab="简介" key="description">
           <div className="tab-content">
             <Title level={5}>描述</Title>
             <Paragraph className="description-text">
               {skill.description || '暂无描述'}
             </Paragraph>
-            
+
             {skill.tags && skill.tags.length > 0 && (
               <>
                 <Title level={5} style={{ marginTop: 24 }}>标签</Title>
@@ -132,10 +150,25 @@ export default function SkillDetail({
                 </Space>
               </>
             )}
+
+            {/* 使用说明 */}
+            <Title level={5} style={{ marginTop: 24 }}>
+              <BookOutlined style={{ marginRight: 8 }} />
+              使用说明
+            </Title>
+            <Paragraph type="secondary">
+              {skill.documentation_url ? (
+                <a href={skill.documentation_url} target="_blank" rel="noopener noreferrer">
+                  查看完整使用文档 <LinkOutlined />
+                </a>
+              ) : (
+                '安装后可在技能列表中查看使用说明'
+              )}
+            </Paragraph>
           </div>
-        </TabPane>
-        
-        <TabPane tab="详情" key="details">
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab="详情" key="details">
           <div className="tab-content">
             <Descriptions column={1} labelStyle={{ fontWeight: 500 }}>
               <Descriptions.Item label="版本">{skill.version}</Descriptions.Item>
@@ -152,13 +185,13 @@ export default function SkillDetail({
               </Descriptions.Item>
               <Descriptions.Item label="发布时间">
                 <CalendarOutlined style={{ marginRight: 8 }} />
-                {skill.published_at 
+                {skill.published_at
                   ? new Date(skill.published_at).toLocaleDateString('zh-CN')
                   : '未发布'
                 }
               </Descriptions.Item>
             </Descriptions>
-            
+
             {/* 链接 */}
             <Divider />
             <Title level={5}>链接</Title>
@@ -179,28 +212,56 @@ export default function SkillDetail({
                 </a>
               )}
             </Space>
-          </div>
-        </TabPane>
-        
-        <TabPane tab="评分与评论" key="reviews">
-          <div className="tab-content">
-            <div className="rating-summary">
-              <div className="rating-big">
-                <div className="rating-number">{parseFloat(skill.rating).toFixed(1)}</div>
-                <Rate disabled value={parseFloat(skill.rating)} allowHalf />
-                <div className="rating-count">{skill.rating_count} 个评价</div>
-              </div>
-            </div>
+
+            {/* 版本历史提示 */}
             <Divider />
-            <div className="reviews-placeholder">
-              <Text type="secondary">
-                评论功能即将上线...
-              </Text>
+            <Title level={5}>
+              <HistoryOutlined style={{ marginRight: 8 }} />
+              版本历史
+            </Title>
+            <Text type="secondary">
+              当前版本: v{skill.version}
+            </Text>
+            <Paragraph type="secondary" style={{ marginTop: 8 }}>
+              完整版本历史请在代码仓库中查看
+            </Paragraph>
+          </div>
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab="评分与评论" key="reviews">
+          <div className="tab-content">
+            {/* 评分展示 */}
+            <RatingDisplay
+              skillId={skill.id}
+              showUserRating={true}
+              onRatingChange={handleRatingChange}
+            />
+
+            <Divider />
+
+            {/* 评论区 */}
+            <CommentSection skillId={skill.id} currentUserId={currentUserId} />
+          </div>
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab="相关推荐" key="related">
+          <div className="tab-content">
+            <Title level={5}>
+              <AppstoreAddOutlined style={{ marginRight: 8 }} />
+              相关技能
+            </Title>
+            <Text type="secondary">
+              基于分类和标签的相关推荐功能即将上线...
+            </Text>
+            <div className="related-placeholder">
+              <Paragraph type="secondary">
+                即将推出基于 AI 的智能推荐功能，为您推荐相似技能
+              </Paragraph>
             </div>
           </div>
-        </TabPane>
+        </Tabs.TabPane>
       </Tabs>
-      
+
       {/* 底部信息 */}
       <div className="detail-footer">
         <Avatar icon={<UserOutlined />} size="small" />

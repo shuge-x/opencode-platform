@@ -1,0 +1,13 @@
+.favorite-button {
+  transition: all 0.3s ease;
+}
+
+.favorite-button.favorited {
+  background: #faad14;
+  border-color: #faad14;
+}
+
+.favorite-button.favorited:hover {
+  background: #ffc53d;
+  border-color: #ffc53d;
+}

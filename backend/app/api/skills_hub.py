@@ -9,7 +9,7 @@ from app.database import get_db
 from app.core.security import get_current_user, get_optional_user
 from app.models.user import User
 from app.models.skill import Skill
-from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermission
+from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermission, SkillReview, SkillRating, SkillBookmark
 from app.models.category import SkillCategory, SkillCategoryMapping
 from app.schemas.skills_hub import (
     SkillPublishRequest,
@@ -42,6 +42,19 @@ from app.schemas.category import (
     CategoryListResponse,
     CategoryTreeResponse,
     CategoryStatsResponse,
+)
+from app.schemas.review import (
+    ReviewCreateRequest,
+    ReviewUpdateRequest,
+    ReviewResponse,
+    ReviewListResponse,
+    RatingRequest,
+    RatingResponse,
+    RatingStatsResponse,
+    BookmarkCreateRequest,
+    BookmarkUpdateRequest,
+    BookmarkResponse,
+    BookmarkListResponse,
 )
 from app.utils.minio_client import minio_client
 from app.services.search_service import SearchService
