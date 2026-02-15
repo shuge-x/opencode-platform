@@ -26,6 +26,14 @@ from app.schemas.review import (
     RatingRequest, RatingResponse, RatingStatsResponse,
     BookmarkCreateRequest, BookmarkUpdateRequest, BookmarkResponse, BookmarkListResponse
 )
+# Gateway schemas
+from app.schemas.gateway import (
+    GatewayRouteCreate, GatewayRouteUpdate, GatewayRouteResponse, GatewayRouteListResponse,
+    ApiKeyCreate, ApiKeyResponse, ApiKeyCreateResponse, ApiKeyListResponse,
+    RateLimitConfig, RateLimitStatus,
+    GatewayStats, GatewayServiceStatus,
+    AuthValidationResponse, ApiKeyAuth
+)
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin",
@@ -46,5 +54,11 @@ __all__ = [
     # Review, Rating, Bookmark
     "ReviewCreateRequest", "ReviewUpdateRequest", "ReviewResponse", "ReviewListResponse",
     "RatingRequest", "RatingResponse", "RatingStatsResponse",
-    "BookmarkCreateRequest", "BookmarkUpdateRequest", "BookmarkResponse", "BookmarkListResponse"
+    "BookmarkCreateRequest", "BookmarkUpdateRequest", "BookmarkResponse", "BookmarkListResponse",
+    # Gateway
+    "GatewayRouteCreate", "GatewayRouteUpdate", "GatewayRouteResponse", "GatewayRouteListResponse",
+    "ApiKeyCreate", "ApiKeyResponse", "ApiKeyCreateResponse", "ApiKeyListResponse",
+    "RateLimitConfig", "RateLimitStatus",
+    "GatewayStats", "GatewayServiceStatus",
+    "AuthValidationResponse", "ApiKeyAuth"
 ]

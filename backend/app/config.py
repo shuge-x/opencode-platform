@@ -63,6 +63,17 @@ class Settings(BaseSettings):
     
     # 技能包配置
     MAX_PACKAGE_SIZE: int = 10 * 1024 * 1024  # 10MB
+    
+    # API网关配置 (Kong)
+    KONG_ADMIN_URL: Optional[str] = None  # 例如: http://kong-admin:8001
+    KONG_PROXY_URL: Optional[str] = None  # 例如: http://kong-proxy:8000
+    
+    # Traefik配置 (可选)
+    TRAEFIK_API_URL: Optional[str] = None  # 例如: http://traefik:8080
+    
+    # 网关限流配置
+    GATEWAY_DEFAULT_RATE_LIMIT: int = 60  # 默认每分钟请求数
+    GATEWAY_RATE_LIMIT_WINDOW: int = 60  # 限流窗口(秒)
 
 
 # 全局配置实例
