@@ -1,0 +1,186 @@
+.skill-card {
+  height: 100%;
+  transition: all 0.3s;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.skill-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.skill-card-cover {
+  height: 140px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.skill-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.featured-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-weight: 500;
+}
+
+.more-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  color: white;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.more-btn:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+}
+
+.skill-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.skill-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.category-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.skill-description {
+  color: #595959;
+  font-size: 13px;
+  line-height: 1.6;
+  height: 42px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin: 8px 0;
+}
+
+.skill-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #595959;
+}
+
+.mini-rate {
+  font-size: 12px;
+}
+
+.rating-text {
+  font-weight: 600;
+  color: #262626;
+  margin-left: 4px;
+}
+
+.stat-secondary {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.version-tag {
+  margin-left: auto;
+  font-size: 11px;
+  background: #f0f0f0;
+  border: none;
+  color: #595959;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.skill-tag {
+  font-size: 11px;
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  margin: 0;
+  border-radius: 4px;
+}
+
+.more-tags {
+  font-size: 11px;
+  color: #8c8c8c;
+  padding: 2px 6px;
+}
+
+/* 动画效果 */
+@keyframes cardHover {
+  from {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(0);
+  }
+  to {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 576px) {
+  .skill-card-cover {
+    height: 120px;
+  }
+  
+  .skill-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+  }
+  
+  .skill-stats {
+    gap: 8px;
+  }
+}

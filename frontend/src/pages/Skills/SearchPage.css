@@ -1,0 +1,380 @@
+.skill-search-page {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+/* 搜索头部 */
+.search-header {
+  background: white;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.search-bar-container {
+  max-width: 800px;
+  margin: 0 auto 24px;
+}
+
+/* 筛选面板 */
+.filter-panel {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.filter-label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #595959;
+}
+
+/* 主内容区 */
+.search-content {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  gap: 24px;
+}
+
+/* 侧边栏 */
+.desktop-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .desktop-sidebar {
+    display: none;
+  }
+  
+  .search-content {
+    padding: 16px;
+  }
+}
+
+.category-sidebar {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.category-sidebar.mobile {
+  box-shadow: none;
+}
+
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-item:hover {
+  background: #f5f5f5;
+}
+
+.category-item.active {
+  background: #e6f7ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.category-item .count {
+  font-size: 12px;
+  color: #8c8c8c;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.category-item.active .count {
+  background: #1890ff;
+  color: white;
+}
+
+/* 结果区域 */
+.results-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-filter-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-filter-btn {
+    display: inline-flex;
+  }
+}
+
+.result-count {
+  color: #595959;
+  font-size: 14px;
+}
+
+/* 技能卡片 - 网格视图 */
+.skill-card {
+  height: 100%;
+  transition: all 0.3s;
+}
+
+.skill-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.skill-card-cover {
+  height: 120px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.skill-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.featured-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.skill-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-tag {
+  font-size: 12px;
+}
+
+.skill-description {
+  color: #595959;
+  font-size: 13px;
+  line-height: 1.5;
+  height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.skill-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #8c8c8c;
+}
+
+.star-icon {
+  color: #faad14;
+}
+
+.stat-secondary {
+  font-size: 12px;
+  color: #bfbfbf;
+}
+
+/* 列表视图 */
+.skill-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+  font-weight: 600;
+}
+
+.list-skill-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.skill-description-text {
+  color: #595959;
+  margin-bottom: 8px;
+}
+
+.skill-stats-inline {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #8c8c8c;
+}
+
+.skill-stats-inline span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+/* 加载更多 */
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+/* 分页 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+}
+
+/* 空状态 */
+.ant-empty {
+  padding: 64px 0;
+}
+
+/* Ant Design 样式覆盖 */
+.ant-card-meta-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ant-list-item {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.ant-list-item-action {
+  margin-left: 16px;
+}
+
+/* 评分筛选 */
+.ant-rate {
+  font-size: 18px;
+}
+
+.ant-rate-star {
+  margin-right: 4px;
+}
+
+/* 搜索框增强 */
+.ant-input-search-large .ant-input {
+  font-size: 16px;
+}
+
+.ant-input-search-large .ant-btn {
+  height: 48px;
+}
+
+/* 响应式优化 */
+@media (max-width: 576px) {
+  .search-header {
+    padding: 16px;
+  }
+  
+  .filter-panel .ant-col {
+    margin-bottom: 12px;
+  }
+  
+  .skill-stats {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .results-toolbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .toolbar-left, .toolbar-right {
+    justify-content: center;
+  }
+  
+  .pagination-container {
+    padding: 16px;
+  }
+  
+  .ant-pagination {
+    text-align: center;
+  }
+}

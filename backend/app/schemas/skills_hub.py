@@ -190,3 +190,124 @@ class SkillHubSearchRequest(BaseModel):
     is_free: Optional[bool] = Field(None, description="只看免费")
     sort_by: Optional[str] = Field("download_count", description="排序字段")
     sort_order: Optional[str] = Field("desc", description="排序方向: asc, desc")
+
+
+# ============= 搜索相关 =============
+
+class SearchRequest(BaseModel):
+    """搜索请求"""
+    query: Optional[str] = Field(None, description="搜索关键词")
+    category_id: Optional[int] = Field(None, description="分类ID")
+    category_slug: Optional[str] = Field(None, description="分类slug")
+    tags: Optional[List[str]] = Field(None, description="标签列表")
+    min_rating: Optional[float] = Field(None, ge=0, le=5, description="最低评分")
+    max_rating: Optional[float] = Field(None, ge=0, le=5, description="最高评分")
+    price_min: Optional[float] = Field(None, ge=0, description="最低价格")
+    price_max: Optional[float] = Field(None, ge=0, description="最高价格")
+    is_free: Optional[bool] = Field(None, description="只看免费")
+    is_featured: Optional[bool] = Field(None, description="只看精选")
+    publisher_id: Optional[int] = Field(None, description="发布者ID")
+    sort_by: str = Field(default="popularity", description="排序字段: popularity, rating, download_count, created_at, name, price")
+    sort_order: str = Field(default="desc", description="排序方向: asc, desc")
+    page: int = Field(default=1, ge=1, description="页码")
+    page_size: int = Field(default=20, ge=1, le=100, description="每页数量")
+
+
+class SearchResultItem(BaseModel):
+    """搜索结果项"""
+    id: int
+    skill_id: int
+    publisher_id: int
+    name: str
+    slug: str
+    description: Optional[str] = None
+    version: str
+    category: Optional[str] = None
+    tags: List[str] = []
+    price: float
+    currency: str
+    status: str
+    is_public: bool
+    is_featured: bool
+    download_count: int
+    install_count: int
+    rating: float
+    rating_count: int
+    homepage_url: Optional[str] = None
+    repository_url: Optional[str] = None
+    documentation_url: Optional[str] = None
+    license: str
+    published_at: Optional[str] = None
+    created_at: str
+    updated_at: str
+    highlights: Optional[Dict[str, str]] = None  # 搜索高亮
+
+
+class SearchMetadata(BaseModel):
+    """搜索元数据"""
+    query: Optional[str] = None
+    filters: Dict[str, Any] = {}
+    sort: Dict[str, str] = {}
+    page: int
+    page_size: int
+    total_pages: int
+    took_ms: int = 0
+
+
+class SearchResponse(BaseModel):
+    """搜索响应"""
+    items: List[SearchResultItem]
+    total: int
+    metadata: SearchMetadata
+
+
+class SearchSuggestion(BaseModel):
+    """搜索建议"""
+    type: str = Field(..., description="类型: skill, tag, category")
+    text: str = Field(..., description="建议文本")
+    slug: Optional[str] = Field(None, description="技能slug（如果是技能类型）")
+    score: int = Field(default=0, description="相关度分数")
+
+
+class SearchSuggestionsResponse(BaseModel):
+    """搜索建议响应"""
+    suggestions: List[SearchSuggestion]
+    query: str
+
+
+class PopularSearchResponse(BaseModel):
+    """热门搜索响应"""
+    items: List[Dict[str, Any]]
+    updated_at: str
+
+
+class SearchFacetsResponse(BaseModel):
+    """搜索面响应"""
+    categories: List[Dict[str, Any]] = []
+    price_range: Dict[str, float] = {}
+    rating_distribution: Dict[int, int] = {}
+
+
+# ============= 热度统计 =============
+
+class PopularityScoreResponse(BaseModel):
+    """热度分数响应"""
+    skill_id: int
+    score: float
+    components: Dict[str, float] = {}
+
+
+class TopSkillsResponse(BaseModel):
+    """热门技能响应"""
+    items: List[Dict[str, Any]]
+    category_id: Optional[int] = None
+    updated_at: str
+
+
+class StatsSummaryResponse(BaseModel):
+    """统计摘要响应"""
+    total_skills: int
+    total_downloads: int
+    avg_downloads: float
+    avg_rating: float
+    updated_at: str

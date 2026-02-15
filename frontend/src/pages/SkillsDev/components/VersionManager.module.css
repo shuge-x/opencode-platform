@@ -1,0 +1,22 @@
+.versionManager {
+  max-width: 1200px;
+}
+
+.versionManager :global(.ant-table) {
+  background: #fff;
+}
+
+.versionManager :global(.ant-table-thead > tr > th) {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.versionManager :global(.ant-table-tbody > tr:hover > td) {
+  background: #f5f5f5;
+}
+
+.versionManager :global(.ant-badge-status-text) {
+  font-size: 12px;
+  color: #1890ff;
+  margin-left: 4px;
+}

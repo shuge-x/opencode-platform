@@ -8,10 +8,12 @@ from app.models.skill_version import SkillVersion
 from app.models.app import App
 from app.models.file import File
 from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermission, SkillReview
+from app.models.category import SkillCategory, SkillCategoryMapping
 
 __all__ = [
     "User", "Session", 
     "Skill", "SkillFile", "SkillExecution", "SkillExecutionLog", "SkillVersion",
     "App", "File",
-    "PublishedSkill", "SkillPackage", "SkillPermission", "SkillReview"
+    "PublishedSkill", "SkillPackage", "SkillPermission", "SkillReview",
+    "SkillCategory", "SkillCategoryMapping"
 ]
