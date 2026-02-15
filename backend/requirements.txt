@@ -29,6 +29,9 @@ slowapi==0.1.9
 # Git 操作
 GitPython==3.1.41
 
+# 异步文件操作
+aiofiles==23.2.1
+
 # 测试
 pytest==7.4.4
 pytest-asyncio==0.23.3
