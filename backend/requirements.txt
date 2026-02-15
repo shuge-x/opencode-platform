@@ -35,6 +35,10 @@ aiofiles==23.2.1
 # MinIO 对象存储
 minio==7.2.4
 
+# Docker SDK
+docker==7.0.0
+docker-compose==1.29.2
+
 # 测试
 pytest==7.4.4
 pytest-asyncio==0.23.3

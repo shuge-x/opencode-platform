@@ -1,0 +1,17 @@
+.container {
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.empty-container {
+  padding: 32px;
+  text-align: center;
+}
