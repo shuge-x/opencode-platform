@@ -34,6 +34,15 @@ from app.schemas.gateway import (
     GatewayStats, GatewayServiceStatus,
     AuthValidationResponse, ApiKeyAuth
 )
+# Billing schemas
+from app.schemas.billing import (
+    BillingPlanType, BillingCycle, BillingUsageType, SubscriptionStatus, BillStatus,
+    BillingPlanCreate, BillingPlanUpdate, BillingPlanResponse, BillingPlanListResponse,
+    SubscriptionCreate, SubscriptionResponse, SubscriptionListResponse,
+    UsageRecord, UsageSummary, SkillUsageSummary, UsageQueryParams, UsageResponse,
+    BillItem, BillCreate, BillResponse, BillListResponse, BillGenerateResponse,
+    BillingConfigResponse
+)
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin",
@@ -60,5 +69,12 @@ __all__ = [
     "ApiKeyCreate", "ApiKeyResponse", "ApiKeyCreateResponse", "ApiKeyListResponse",
     "RateLimitConfig", "RateLimitStatus",
     "GatewayStats", "GatewayServiceStatus",
-    "AuthValidationResponse", "ApiKeyAuth"
+    "AuthValidationResponse", "ApiKeyAuth",
+    # Billing
+    "BillingPlanType", "BillingCycle", "BillingUsageType", "SubscriptionStatus", "BillStatus",
+    "BillingPlanCreate", "BillingPlanUpdate", "BillingPlanResponse", "BillingPlanListResponse",
+    "SubscriptionCreate", "SubscriptionResponse", "SubscriptionListResponse",
+    "UsageRecord", "UsageSummary", "SkillUsageSummary", "UsageQueryParams", "UsageResponse",
+    "BillItem", "BillCreate", "BillResponse", "BillListResponse", "BillGenerateResponse",
+    "BillingConfigResponse"
 ]

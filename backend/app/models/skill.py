@@ -48,6 +48,7 @@ class Skill(Base):
     user = relationship("User", back_populates="skills")
     files = relationship("SkillFile", back_populates="skill", cascade="all, delete-orphan")
     executions = relationship("SkillExecution", back_populates="skill", cascade="all, delete-orphan")
+    usage_records = relationship("BillingUsage", back_populates="skill")
 
     def __repr__(self):
         return f"<Skill(id={self.id}, name={self.name}, version={self.version})>"

@@ -11,6 +11,11 @@ from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermis
 from app.models.category import SkillCategory, SkillCategoryMapping
 from app.models.gateway import GatewayRoute, ApiKey, RateLimitLog
 from app.models.skill_invocation_log import SkillInvocationLog, SkillErrorLog
+# Billing
+from app.models.billing import (
+    BillingPlan, Subscription, BillingUsage, BillingBill,
+    BillingPlanType, BillingCycle, BillingUsageType, SubscriptionStatus, BillStatus
+)
 
 __all__ = [
     "User", "Session", 
@@ -21,5 +26,8 @@ __all__ = [
     # Gateway
     "GatewayRoute", "ApiKey", "RateLimitLog",
     # Monitoring
-    "SkillInvocationLog", "SkillErrorLog"
+    "SkillInvocationLog", "SkillErrorLog",
+    # Billing
+    "BillingPlan", "Subscription", "BillingUsage", "BillingBill",
+    "BillingPlanType", "BillingCycle", "BillingUsageType", "SubscriptionStatus", "BillStatus"
 ]

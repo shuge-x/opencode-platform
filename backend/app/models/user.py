@@ -68,6 +68,10 @@ class User(Base):
     skills = relationship("Skill", back_populates="user", cascade="all, delete-orphan")
     apps = relationship("App", back_populates="user", cascade="all, delete-orphan")
     files = relationship("File", back_populates="user", cascade="all, delete-orphan")
+    # Billing relations
+    subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan")
+    usage_records = relationship("BillingUsage", back_populates="user", cascade="all, delete-orphan")
+    bills = relationship("BillingBill", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username={self.username}, email={self.email})>"

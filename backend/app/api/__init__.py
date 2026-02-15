@@ -4,7 +4,7 @@ API路由模块
 from fastapi import APIRouter
 
 from app.api import auth, users, sessions, skills, apps, files, tools, skill_executor
-from app.api import skills_version, skills_hub, gateway, monitoring, stats
+from app.api import skills_version, skills_hub, gateway, monitoring, stats, billing
 
 # 创建API路由器
 api_router = APIRouter()
@@ -23,3 +23,4 @@ api_router.include_router(tools.router, prefix="/tools", tags=["工具"])
 api_router.include_router(gateway.router, prefix="/gateway", tags=["API网关"])
 api_router.include_router(monitoring.router, prefix="/monitoring", tags=["技能监控"])
 api_router.include_router(stats.router, prefix="/stats", tags=["统计"])
+api_router.include_router(billing.router, prefix="/billing", tags=["计费"])
