@@ -7,9 +7,11 @@ from app.models.skill import Skill, SkillFile, SkillExecution, SkillExecutionLog
 from app.models.skill_version import SkillVersion
 from app.models.app import App
 from app.models.file import File
+from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermission, SkillReview
 
 __all__ = [
     "User", "Session", 
     "Skill", "SkillFile", "SkillExecution", "SkillExecutionLog", "SkillVersion",
-    "App", "File"
+    "App", "File",
+    "PublishedSkill", "SkillPackage", "SkillPermission", "SkillReview"
 ]

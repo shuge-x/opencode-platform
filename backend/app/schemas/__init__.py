@@ -13,6 +13,14 @@ from app.schemas.skill_version import (
     VersionCompareResponse, VersionRestoreResponse, RepoStatusResponse,
     BranchResponse, BranchCreate, BranchSwitch
 )
+from app.schemas.skills_hub import (
+    SkillPublishRequest, PublishedSkillResponse,
+    SkillPackageResponse, UploadResponse,
+    VersionCreateRequest as HubVersionCreateRequest,
+    VersionListResponse as HubVersionListResponse,
+    PermissionGrantRequest, PermissionResponse,
+    SkillHubListResponse, SkillHubSearchRequest
+)
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin",
@@ -23,5 +31,11 @@ __all__ = [
     "VersionCreate", "VersionRestore", "VersionCompare",
     "VersionResponse", "VersionDetailResponse", "VersionListResponse",
     "VersionCompareResponse", "VersionRestoreResponse", "RepoStatusResponse",
-    "BranchResponse", "BranchCreate", "BranchSwitch"
+    "BranchResponse", "BranchCreate", "BranchSwitch",
+    # Skills Hub
+    "SkillPublishRequest", "PublishedSkillResponse",
+    "SkillPackageResponse", "UploadResponse",
+    "HubVersionCreateRequest", "HubVersionListResponse",
+    "PermissionGrantRequest", "PermissionResponse",
+    "SkillHubListResponse", "SkillHubSearchRequest"
 ]

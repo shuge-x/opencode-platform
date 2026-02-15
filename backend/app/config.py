@@ -53,6 +53,16 @@ class Settings(BaseSettings):
     # WebSocket配置
     WS_HEARTBEAT_INTERVAL: int = 30
     WS_MAX_CONNECTIONS: int = 1000
+    
+    # MinIO配置
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_SECURE: bool = False
+    MINIO_BUCKET_NAME: str = "skills-hub"
+    
+    # 技能包配置
+    MAX_PACKAGE_SIZE: int = 10 * 1024 * 1024  # 10MB
 
 
 # 全局配置实例

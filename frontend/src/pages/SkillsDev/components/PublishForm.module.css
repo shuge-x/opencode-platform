@@ -1,0 +1,165 @@
+.publishForm {
+  max-width: 1200px;
+}
+
+.section {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+/* Progress Alert */
+.progressAlert {
+  margin-bottom: 24px;
+}
+
+.progressContent {
+  padding: 8px 0;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.progressStage {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.progressMessage {
+  color: #666;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* Icon Upload */
+.iconUploadWrapper {
+  margin-bottom: 8px;
+}
+
+.iconPreview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.iconPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeIcon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+}
+
+.iconDragger {
+  padding: 20px !important;
+}
+
+.iconDragger :global(.ant-upload-drag-icon) {
+  font-size: 32px;
+  color: #1890ff;
+  margin-bottom: 8px;
+}
+
+.iconDragger :global(.ant-upload-text) {
+  font-size: 14px;
+  color: #333;
+}
+
+.iconDragger :global(.ant-upload-hint) {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* Tags */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.skillTag {
+  margin: 0;
+  padding: 4px 12px;
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+}
+
+.addTag {
+  background: #fff;
+  border-style: dashed;
+  cursor: pointer;
+}
+
+.addTag:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.tagInput {
+  width: 100px;
+  height: auto;
+  padding: 4px 8px;
+}
+
+.popularTags {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e8e8e8;
+}
+
+.popularTagsLabel {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.popularTagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.popularTag {
+  margin: 0;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.2s;
+}
+
+.popularTag:hover {
+  opacity: 1;
+  background: #e6f7ff;
+  border-color: #1890ff;
+}
+
+/* Form Actions */
+.formActions {
+  margin-bottom: 0;
+  text-align: right;
+}

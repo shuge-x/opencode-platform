@@ -1,0 +1,102 @@
+.packageUpload {
+  max-width: 1200px;
+}
+
+.uploadSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.packageCard,
+.uploadCard {
+  height: fit-content;
+}
+
+.dragger {
+  padding: 24px !important;
+}
+
+.dragger :global(.ant-upload-drag-icon) {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 12px;
+}
+
+.dragger :global(.ant-upload-text) {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.dragger :global(.ant-upload-hint) {
+  font-size: 14px;
+  color: #999;
+}
+
+.selectedFile {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #e6f7ff;
+  border-radius: 4px;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.selectedFile :global(.anticon) {
+  margin-right: 8px;
+}
+
+/* Progress Card */
+.progressCard {
+  margin-bottom: 24px;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statusIcon {
+  font-size: 24px;
+}
+
+.statusIcon.processing {
+  color: #1890ff;
+}
+
+.statusIcon.success {
+  color: #52c41a;
+}
+
+.statusIcon.error {
+  color: #ff4d4f;
+}
+
+.progressTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Versions Card */
+.versionsCard {
+  margin-bottom: 24px;
+}
+
+.versionsCard :global(.ant-list-item) {
+  padding: 16px 0;
+}
+
+.versionsCard :global(.ant-list-item-meta-title) {
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .uploadSection {
+    grid-template-columns: 1fr;
+  }
+}
