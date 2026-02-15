@@ -12,12 +12,14 @@ import {
   PlayCircleOutlined,
   BugOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined
+  MenuUnfoldOutlined,
+  HistoryOutlined
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import Editor, { Monaco } from '@monaco-editor/react'
 import { skillsDevApi, Skill, SkillFile, SkillTemplate } from '@/api/skills-dev'
 import { DebugPanel } from '@/components/Debug'
+import { VersionHistoryPanel } from '@/components/VersionHistory'
 import type { editor } from 'monaco-editor'
 import styles from './SkillEditor.module.css'
 
@@ -36,6 +38,7 @@ export default function SkillEditor() {
   const [debugPanelVisible, setDebugPanelVisible] = useState(true)
   const [debugPanelWidth, setDebugPanelWidth] = useState(400)
   const [debugMode, setDebugMode] = useState(false)
+  const [versionPanelVisible, setVersionPanelVisible] = useState(false)
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
 
@@ -206,6 +209,13 @@ export default function SkillEditor() {
     setDebugPanelVisible(!debugMode)
   }
 
+  // 版本回退成功后刷新文件
+  const handleRevertSuccess = async () => {
+    // 重新加载技能文件
+    await loadSkill()
+    message.success('文件已从历史版本恢复')
+  }
+
   // 文件树数据
   const treeData = files.map(file => ({
     key: file.id.toString(),
@@ -277,6 +287,14 @@ export default function SkillEditor() {
                 >
                   保存
                 </Button>
+                <Tooltip title="版本历史">
+                  <Button
+                    icon={<HistoryOutlined />}
+                    onClick={() => setVersionPanelVisible(true)}
+                  >
+                    版本历史
+                  </Button>
+                </Tooltip>
                 <Tooltip title={debugMode ? '隐藏调试面板' : '显示调试面板'}>
                   <Button
                     icon={<BugOutlined />}

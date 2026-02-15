@@ -26,6 +26,9 @@ httpx==0.26.0
 # API限流
 slowapi==0.1.9
 
+# Git 操作
+GitPython==3.1.41
+
 # 测试
 pytest==7.4.4
 pytest-asyncio==0.23.3

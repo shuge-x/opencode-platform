@@ -1,0 +1,133 @@
+.revertDialog {
+  /* 全局样式通过 className 覆盖 */
+}
+
+.revertDialog :global(.ant-modal-content) {
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.revertDialog :global(.ant-modal-header) {
+  background: #1e1e1e;
+  border-bottom: 1px solid #3c3c3c;
+  color: #d4d4d4;
+}
+
+.revertDialog :global(.ant-modal-title) {
+  color: #d4d4d4;
+}
+
+.revertDialog :global(.ant-modal-close-x) {
+  color: #8c8c8c;
+}
+
+.revertDialog :global(.ant-modal-close:hover .ant-modal-close-x) {
+  color: #d4d4d4;
+}
+
+.revertDialog :global(.ant-modal-footer) {
+  border-top: 1px solid #3c3c3c;
+  background: #1e1e1e;
+}
+
+.warningAlert {
+  margin-bottom: 16px;
+  background: rgba(250, 173, 20, 0.1);
+  border-color: rgba(250, 173, 20, 0.3);
+}
+
+.warningAlert :global(.ant-alert-message) {
+  color: #faad14;
+}
+
+.warningAlert :global(.ant-alert-description) {
+  color: #d4d4d4;
+}
+
+.versionInfo {
+  padding: 12px;
+  background: #252526;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.versionInfo :global(.ant-paragraph) {
+  margin-bottom: 8px;
+}
+
+.versionInfo :global(.ant-paragraph:last-child) {
+  margin-bottom: 0;
+}
+
+.fileList {
+  margin-bottom: 16px;
+}
+
+.fileItem {
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #3c3c3c !important;
+}
+
+.fileItem:last-child {
+  border-bottom: none !important;
+}
+
+.filename {
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.messageInput {
+  background: #3c3c3c;
+  border-color: #3c3c3c;
+}
+
+.messageInput :global(.ant-input) {
+  background: #3c3c3c;
+  border-color: #3c3c3c;
+  color: #d4d4d4;
+}
+
+.messageInput :global(.ant-input::placeholder) {
+  color: #8c8c8c;
+}
+
+.statusContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+  text-align: center;
+}
+
+.statusIcon {
+  font-size: 48px;
+  color: #1890ff;
+}
+
+.successIcon {
+  font-size: 48px;
+  color: #52c41a;
+}
+
+.errorIcon {
+  font-size: 48px;
+  color: #ff4d4f;
+}
+
+.statusContent :global(.ant-progress) {
+  width: 100%;
+  max-width: 300px;
+}
+
+.statusContent :global(.ant-typography) {
+  text-align: center;
+}
