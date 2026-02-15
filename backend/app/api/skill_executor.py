@@ -3,6 +3,7 @@
 """
 import asyncio
 import json
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -12,7 +13,11 @@ from app.models.user import User
 from app.models.skill import Skill, SkillExecution, SkillExecutionLog
 from app.schemas.skill import SkillExecutionCreate, SkillExecutionResponse
 from app.core.skill_executor import skill_sandbox
+from app.core.debug_executor import debug_executor
+from app.core.debug_manager import debug_manager
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -216,3 +221,195 @@ async def get_execution_logs(
         )
 
     return execution.logs
+
+
+# ==================== Sprint 8: 调试执行 ====================
+
+@router.post("/execute/debug", response_model=SkillExecutionResponse, status_code=status.HTTP_201_CREATED)
+async def execute_skill_with_debug(
+    execution: SkillExecutionCreate,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    执行技能（调试模式）
+
+    - 创建执行记录和调试会话
+    - 在 Docker 沙箱中执行（带调试插桩）
+    - 通过 WebSocket 实时推送调试事件
+    - 返回执行结果
+    """
+    # 查询技能
+    result = await db.execute(
+        select(Skill).where(
+            Skill.id == execution.skill_id,
+            Skill.user_id == current_user.id
+        )
+    )
+    skill = result.scalar_one_or_none()
+
+    if not skill:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Skill not found"
+        )
+
+    # 创建执行记录
+    db_execution = SkillExecution(
+        skill_id=skill.id,
+        user_id=current_user.id,
+        status="pending",
+        input_params=execution.input_params
+    )
+
+    db.add(db_execution)
+    await db.commit()
+    await db.refresh(db_execution)
+
+    # 创建调试会话
+    try:
+        await debug_manager.create_debug_session(
+            session_id=f"debug_{db_execution.id}",
+            execution_id=db_execution.id,
+            skill_id=skill.id,
+            user_id=current_user.id
+        )
+    except Exception as e:
+        logger.error(f"Failed to create debug session: {e}")
+
+    # 异步执行技能（调试模式）
+    background_tasks.add_task(
+        execute_skill_debug_background,
+        db_execution.id,
+        skill,
+        execution.input_params,
+        current_user.id
+    )
+
+    return db_execution
+
+
+async def execute_skill_debug_background(
+    execution_id: int,
+    skill: Skill,
+    params: dict,
+    user_id: int
+):
+    """
+    后台执行技能（调试模式）
+
+    Args:
+        execution_id: 执行记录ID
+        skill: 技能对象
+        params: 输入参数
+        user_id: 用户ID
+    """
+    from app.database import async_session_maker
+
+    async with async_session_maker() as db:
+        try:
+            # 更新状态为运行中
+            result = await db.execute(
+                select(SkillExecution).where(SkillExecution.id == execution_id)
+            )
+            db_execution = result.scalar_one()
+
+            db_execution.status = "running"
+            db_execution.started_at = datetime.utcnow()
+            await db.commit()
+
+            # 通知调试管理器
+            debug_session = debug_manager.get_debug_session(execution_id)
+            if debug_session:
+                debug_session.state = "running"
+
+            # 准备文件内容
+            files = {}
+            for file in skill.files:
+                files[file.filename] = file.content or ""
+
+            # 执行技能（调试模式）
+            execution_result = await debug_executor.execute_skill_with_debug(
+                skill_id=skill.id,
+                execution_id=execution_id,
+                files=files,
+                main_file="main.py",
+                params=params,
+                user_id=user_id
+            )
+
+            # 更新执行结果
+            db_execution.completed_at = datetime.utcnow()
+            db_execution.execution_time = execution_result.get("execution_time", 0)
+            db_execution.container_id = execution_result.get("container_id")
+
+            if execution_result["success"]:
+                db_execution.status = "success"
+                db_execution.output_result = execution_result["output"]
+
+                # 添加日志
+                log = SkillExecutionLog(
+                    execution_id=execution_id,
+                    log_level="INFO",
+                    message="技能执行成功（调试模式）"
+                )
+                db.add(log)
+
+                # 发送完成事件
+                await debug_manager.broadcast(execution_id, {
+                    'type': 'execution_completed',
+                    'status': 'success',
+                    'output': execution_result['output']
+                })
+
+            else:
+                db_execution.status = "failed"
+                db_execution.error_message = execution_result.get("error", "Unknown error")
+
+                # 添加错误日志
+                log = SkillExecutionLog(
+                    execution_id=execution_id,
+                    log_level="ERROR",
+                    message=execution_result.get("error", "Unknown error")
+                )
+                db.add(log)
+
+                # 发送失败事件
+                await debug_manager.broadcast(execution_id, {
+                    'type': 'execution_completed',
+                    'status': 'failed',
+                    'error': execution_result.get("error")
+                })
+
+            # 更新技能统计
+            skill.execution_count += 1
+            if db_execution.status == "success":
+                skill.success_count += 1
+            else:
+                skill.failure_count += 1
+
+            await db.commit()
+
+        except Exception as e:
+            logger.error(f"Debug execution error: {e}", exc_info=True)
+
+            # 发送错误事件
+            await debug_manager.send_error(
+                execution_id,
+                error_type=type(e).__name__,
+                error_message=str(e),
+                stack_trace=str(e)
+            )
+
+            # 更新状态为失败
+            result = await db.execute(
+                select(SkillExecution).where(SkillExecution.id == execution_id)
+            )
+            db_execution = result.scalar_one()
+
+            db_execution.status = "failed"
+            db_execution.error_message = str(e)
+            db_execution.completed_at = datetime.utcnow()
+
+            await db.commit()

@@ -56,5 +56,9 @@ async def health_check():
 
 # 引入API路由
 from app.api import api_router
+from app.api import websocket as session_websocket
+from app.api import debug_websocket
 
 app.include_router(api_router, prefix="/api")
+app.include_router(session_websocket.router)
+app.include_router(debug_websocket.router)
