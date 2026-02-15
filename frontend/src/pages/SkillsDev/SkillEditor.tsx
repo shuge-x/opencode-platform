@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Layout, Tree, Button, Modal, Input, Select, message, Dropdown, Empty } from 'antd'
+import { Layout, Tree, Button, Modal, Input, Select, message, Dropdown, Empty, Drawer, Tooltip } from 'antd'
 import {
   FileOutlined,
   FolderOutlined,
@@ -9,11 +9,16 @@ import {
   DeleteOutlined,
   EditOutlined,
   SaveOutlined,
-  PlayCircleOutlined
+  PlayCircleOutlined,
+  BugOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
-import Editor from '@monaco-editor/react'
+import Editor, { Monaco } from '@monaco-editor/react'
 import { skillsDevApi, Skill, SkillFile, SkillTemplate } from '@/api/skills-dev'
+import { DebugPanel } from '@/components/Debug'
+import type { editor } from 'monaco-editor'
 import styles from './SkillEditor.module.css'
 
 const { Sider, Content } = Layout
@@ -28,6 +33,11 @@ export default function SkillEditor() {
   const [saving, setSaving] = useState(false)
   const [showNewFileModal, setShowNewFileModal] = useState(false)
   const [newFileName, setNewFileName] = useState('')
+  const [debugPanelVisible, setDebugPanelVisible] = useState(true)
+  const [debugPanelWidth, setDebugPanelWidth] = useState(400)
+  const [debugMode, setDebugMode] = useState(false)
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
+  const monacoRef = useRef<Monaco | null>(null)
 
   // 加载技能和文件
   useEffect(() => {
@@ -154,6 +164,48 @@ export default function SkillEditor() {
     return langMap[fileType] || 'plaintext'
   }
 
+  // 编辑器挂载回调
+  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
+    editorRef.current = editor
+    monacoRef.current = monaco
+  }
+
+  // 跳转到代码位置
+  const goToCodeLocation = useCallback((file: string, line: number, column?: number) => {
+    // 如果文件名与当前文件匹配
+    if (currentFile?.filename === file && editorRef.current) {
+      editorRef.current.revealLineInCenter(line)
+      editorRef.current.setPosition({
+        lineNumber: line,
+        column: column || 1
+      })
+      editorRef.current.focus()
+    } else {
+      // 查找并打开对应文件
+      const targetFile = files.find(f => f.filename === file || f.file_path === file)
+      if (targetFile) {
+        selectFile(targetFile)
+        // 延迟跳转，等待编辑器加载
+        setTimeout(() => {
+          if (editorRef.current) {
+            editorRef.current.revealLineInCenter(line)
+            editorRef.current.setPosition({
+              lineNumber: line,
+              column: column || 1
+            })
+            editorRef.current.focus()
+          }
+        }, 100)
+      }
+    }
+  }, [currentFile, files])
+
+  // 切换调试模式
+  const toggleDebugMode = () => {
+    setDebugMode(!debugMode)
+    setDebugPanelVisible(!debugMode)
+  }
+
   // 文件树数据
   const treeData = files.map(file => ({
     key: file.id.toString(),
@@ -211,7 +263,7 @@ export default function SkillEditor() {
 
       <Content className={styles.editorContent}>
         {currentFile ? (
-          <>
+          <div className={styles.editorContainer}>
             <div className={styles.editorToolbar}>
               <div className={styles.fileInfo}>
                 <FileOutlined /> {currentFile.filename}
@@ -225,32 +277,97 @@ export default function SkillEditor() {
                 >
                   保存
                 </Button>
+                <Tooltip title={debugMode ? '隐藏调试面板' : '显示调试面板'}>
+                  <Button
+                    icon={<BugOutlined />}
+                    type={debugMode ? 'primary' : 'default'}
+                    onClick={toggleDebugMode}
+                  >
+                    调试
+                  </Button>
+                </Tooltip>
                 <Button
                   icon={<PlayCircleOutlined />}
-                  onClick={() => message.info('测试功能开发中')}
+                  onClick={() => {
+                    setDebugMode(true)
+                    setDebugPanelVisible(true)
+                  }}
                 >
-                  测试
+                  运行
                 </Button>
               </div>
             </div>
 
-            <Editor
-              height="calc(100vh - 200px)"
-              language={getLanguage(currentFile.file_type)}
-              value={fileContent}
-              onChange={(value) => setFileContent(value || '')}
-              theme="vs-dark"
-              options={{
-                fontSize: 14,
-                fontFamily: "'Fira Code', 'Consolas', monospace",
-                minimap: { enabled: true },
-                automaticLayout: true,
-                scrollBeyondLastLine: false,
-                wordWrap: 'on',
-                tabSize: 2
-              }}
-            />
-          </>
+            <div className={styles.editorBody}>
+              <div className={styles.codeEditor}>
+                <Editor
+                  height="100%"
+                  language={getLanguage(currentFile.file_type)}
+                  value={fileContent}
+                  onChange={(value) => setFileContent(value || '')}
+                  onMount={handleEditorDidMount}
+                  theme="vs-dark"
+                  options={{
+                    fontSize: 14,
+                    fontFamily: "'Fira Code', 'Consolas', monospace",
+                    minimap: { enabled: true },
+                    automaticLayout: true,
+                    scrollBeyondLastLine: false,
+                    wordWrap: 'on',
+                    tabSize: 2,
+                    glyphMargin: true, // 用于断点标记
+                    folding: true,
+                    lineNumbers: 'on',
+                    renderLineHighlight: 'all'
+                  }}
+                />
+              </div>
+
+              {debugPanelVisible && debugMode && (
+                <div
+                  className={styles.debugPanel}
+                  style={{ width: debugPanelWidth }}
+                >
+                  <div
+                    className={styles.resizeHandle}
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      const startX = e.clientX
+                      const startWidth = debugPanelWidth
+
+                      const handleMouseMove = (e: MouseEvent) => {
+                        const newWidth = startWidth - (e.clientX - startX)
+                        setDebugPanelWidth(Math.max(300, Math.min(800, newWidth)))
+                      }
+
+                      const handleMouseUp = () => {
+                        document.removeEventListener('mousemove', handleMouseMove)
+                        document.removeEventListener('mouseup', handleMouseUp)
+                      }
+
+                      document.addEventListener('mousemove', handleMouseMove)
+                      document.addEventListener('mouseup', handleMouseUp)
+                    }}
+                  />
+                  <div className={styles.debugPanelHeader}>
+                    <span><BugOutlined /> 调试控制台</span>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={debugPanelVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                      onClick={() => setDebugPanelVisible(false)}
+                    />
+                  </div>
+                  <div className={styles.debugPanelContent}>
+                    <DebugPanel
+                      skillId={Number(skillId)}
+                      onCodeLocationClick={goToCodeLocation}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
           <div className={styles.emptyEditor}>
             <Empty description="请选择文件" />

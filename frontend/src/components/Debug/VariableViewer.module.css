@@ -1,0 +1,97 @@
+.variableViewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+}
+
+.varToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 120px;
+}
+
+.scopeTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.scopeTab {
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+  margin: 0;
+}
+
+.varContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.varTree {
+  background: transparent;
+  color: inherit;
+}
+
+.varTree :global(.ant-tree-node-content-wrapper) {
+  display: flex;
+  align-items: center;
+}
+
+.varTree :global(.ant-tree-node-selected) {
+  background: rgba(24, 144, 255, 0.2) !important;
+}
+
+.variableItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.varIcon {
+  font-size: 8px;
+  margin-right: 4px;
+}
+
+.varName {
+  color: #9cdcfe;
+}
+
+.varSeparator {
+  color: #8c8c8c;
+}
+
+.varType {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+.varValue {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emptyVars {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #8c8c8c;
+}

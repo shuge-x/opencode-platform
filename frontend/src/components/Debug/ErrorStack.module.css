@@ -1,0 +1,176 @@
+.errorStack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  overflow-y: auto;
+}
+
+.emptyError {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #8c8c8c;
+}
+
+.errorHeader {
+  padding: 12px;
+}
+
+.errorAlert {
+  background: rgba(255, 77, 79, 0.1) !important;
+  border-color: rgba(255, 77, 79, 0.3) !important;
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.errorIcon {
+  color: #ff4d4f;
+}
+
+.errorName {
+  color: #f48771;
+  font-weight: 600;
+}
+
+.errorText {
+  color: #d4d4d4;
+}
+
+.errorMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  color: #8c8c8c;
+  font-size: 11px;
+}
+
+.stackTrace {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.stackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+  font-weight: 600;
+}
+
+.stackCount {
+  color: #8c8c8c;
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.stackCollapse {
+  background: transparent !important;
+}
+
+.stackPanel {
+  border-bottom: 1px solid #3c3c3c !important;
+}
+
+.stackPanel :global(.ant-collapse-header) {
+  padding: 0 !important;
+  color: #d4d4d4 !important;
+}
+
+.stackFrame {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.stackFrame:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nativeFrame {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.frameHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.frameIcon {
+  font-size: 10px;
+  color: #8c8c8c;
+}
+
+.frameName {
+  color: #dcdcaa;
+  font-weight: 500;
+}
+
+.nativeBadge {
+  font-size: 10px;
+  padding: 1px 4px;
+  background: #3c3c3c;
+  border-radius: 3px;
+  color: #8c8c8c;
+}
+
+.frameLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 18px;
+  font-size: 11px;
+}
+
+.fileIcon {
+  color: #8c8c8c;
+}
+
+.fileName {
+  color: #9cdcfe;
+}
+
+.lineNumber {
+  color: #b5cea8;
+}
+
+.columnNumber {
+  color: #b5cea8;
+}
+
+.frameDetails {
+  padding: 12px 16px;
+  background: #1e1e1e;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.frameDetails p {
+  margin: 4px 0;
+  color: #8c8c8c;
+}
+
+.stackTruncated {
+  padding: 8px 12px;
+  text-align: center;
+  color: #8c8c8c;
+  font-size: 11px;
+  background: #252526;
+}

@@ -1,0 +1,124 @@
+.logPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+}
+
+.logToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+  flex-shrink: 0;
+}
+
+.filterSection {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actionSection {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.logCount {
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+.logContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.logEntry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.logEntry:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.logEntry_error {
+  background: rgba(255, 77, 79, 0.1);
+}
+
+.logEntry_error:hover {
+  background: rgba(255, 77, 79, 0.15);
+}
+
+.logEntry_warn {
+  background: rgba(250, 173, 20, 0.1);
+}
+
+.logTime {
+  color: #6a9955;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.logLevel {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding: 0 4px;
+  line-height: 16px;
+}
+
+.logSource {
+  color: #569cd6;
+  flex-shrink: 0;
+  font-size: 11px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logMessage {
+  flex: 1;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.emptyLogs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #8c8c8c;
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.scrollHint button {
+  background: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+}
+
+.scrollHint button:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}

@@ -1,0 +1,90 @@
+.debugControls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.controlsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debugIcon {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.controlsTitle {
+  font-weight: 600;
+  color: #fff;
+}
+
+.statusPulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.controlsBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.buttonGroup {
+  display: flex;
+}
+
+.divider {
+  height: 24px;
+  margin: 0 4px;
+  background: #3c3c3c;
+}
+
+.currentLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #1e1e1e;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+}
+
+.locationLabel {
+  color: #8c8c8c;
+}
+
+.locationFile {
+  color: #9cdcfe;
+}
+
+.locationLine {
+  color: #b5cea8;
+}
+
+.shortcutsHint {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: #8c8c8c;
+}
+
+.shortcutsHint span {
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
