@@ -10,6 +10,7 @@ from app.models.file import File
 from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermission, SkillReview, SkillRating, SkillBookmark
 from app.models.category import SkillCategory, SkillCategoryMapping
 from app.models.gateway import GatewayRoute, ApiKey, RateLimitLog
+from app.models.skill_invocation_log import SkillInvocationLog, SkillErrorLog
 
 __all__ = [
     "User", "Session", 
@@ -18,5 +19,7 @@ __all__ = [
     "PublishedSkill", "SkillPackage", "SkillPermission", "SkillReview", "SkillRating", "SkillBookmark",
     "SkillCategory", "SkillCategoryMapping",
     # Gateway
-    "GatewayRoute", "ApiKey", "RateLimitLog"
+    "GatewayRoute", "ApiKey", "RateLimitLog",
+    # Monitoring
+    "SkillInvocationLog", "SkillErrorLog"
 ]

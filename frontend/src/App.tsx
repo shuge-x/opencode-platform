@@ -9,6 +9,7 @@ import SkillsPage from '@/pages/Skills'
 import FilesPage from '@/pages/Files'
 import SettingsPage from '@/pages/Settings'
 import FavoritesPage from '@/pages/FavoritesPage'
+import MonitoringDashboard from '@/pages/Monitoring'
 import { useAuthStore } from '@/stores/authStore'
 
 // Protected Route
@@ -40,6 +41,7 @@ function App() {
             <Route path="favorites" element={<FavoritesPage />} />
             <Route path="files" element={<FilesPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="monitoring" element={<MonitoringDashboard />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
