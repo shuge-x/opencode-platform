@@ -4,6 +4,7 @@
 使用pydantic-settings从环境变量加载配置
 """
 from typing import Optional
+from pydantic import field_validator, ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,10 +36,18 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # JWT配置
-    SECRET_KEY: str = "your-secret-key-change-this-in-production"
+    SECRET_KEY: str  # 必须从环境变量加载，无默认值
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        """验证 SECRET_KEY 至少 32 字符"""
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY must be at least 32 characters long for security")
+        return v
     
     # OpenCode CLI配置
     OPENCODE_CLI_PATH: str = "opencode"
@@ -56,10 +65,26 @@ class Settings(BaseSettings):
     
     # MinIO配置
     MINIO_ENDPOINT: str = "localhost:9000"
-    MINIO_ACCESS_KEY: str = "minioadmin"
-    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_ACCESS_KEY: str  # 必须从环境变量加载，无默认值
+    MINIO_SECRET_KEY: str  # 必须从环境变量加载，无默认值
     MINIO_SECURE: bool = False
     MINIO_BUCKET_NAME: str = "skills-hub"
+    
+    @field_validator("MINIO_ACCESS_KEY")
+    @classmethod
+    def validate_minio_access_key(cls, v: str) -> str:
+        """验证 MINIO_ACCESS_KEY 不为空且不使用默认值"""
+        if not v or v == "minioadmin":
+            raise ValueError("MINIO_ACCESS_KEY must be set and cannot use default value 'minioadmin'")
+        return v
+    
+    @field_validator("MINIO_SECRET_KEY")
+    @classmethod
+    def validate_minio_secret_key(cls, v: str) -> str:
+        """验证 MINIO_SECRET_KEY 不为空且不使用默认值"""
+        if not v or v == "minioadmin":
+            raise ValueError("MINIO_SECRET_KEY must be set and cannot use default value 'minioadmin'")
+        return v
     
     # 技能包配置
     MAX_PACKAGE_SIZE: int = 10 * 1024 * 1024  # 10MB
