@@ -1,11 +1,12 @@
 """
 FastAPI主应用 - 优化版
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 import logging
 import sys
+import time
 
 from app.config import settings
 from app.database import init_db, close_db
@@ -97,12 +98,26 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # 限流中间件
 app.middleware("http")(rate_limit_middleware)
+
+
+# 请求日志中间件
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """记录所有HTTP请求的中间件"""
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+    logger.info(
+        f"{request.method} {request.url.path} - "
+        f"{response.status_code} - {duration:.3f}s"
+    )
+    return response
 
 
 @app.on_event("startup")
