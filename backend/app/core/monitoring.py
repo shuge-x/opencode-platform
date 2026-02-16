@@ -454,3 +454,219 @@ class MonitoringStats:
                 "slow_query_ms": SlowQueryDetector.SLOW_QUERY_THRESHOLD_MS
             }
         }
+
+
+# ============= 系统资源监控 =============
+
+class SystemMetrics:
+    """系统资源监控"""
+    
+    _metrics: Dict[str, Any] = {}
+    
+    @classmethod
+    async def collect(cls) -> Dict[str, Any]:
+        """收集系统指标"""
+        import psutil
+        import os
+        
+        try:
+            # CPU 使用率
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            cpu_count = psutil.cpu_count()
+            
+            # 内存使用
+            memory = psutil.virtual_memory()
+            
+            # 磁盘使用
+            disk = psutil.disk_usage('/')
+            
+            # 进程信息
+            process = psutil.Process(os.getpid())
+            process_memory = process.memory_info()
+            
+            # 网络连接数
+            connections = len(psutil.net_connections())
+            
+            cls._metrics = {
+                "cpu": {
+                    "percent": cpu_percent,
+                    "count": cpu_count,
+                    "load_avg": list(os.getloadavg()) if hasattr(os, 'getloadavg') else None
+                },
+                "memory": {
+                    "total_mb": round(memory.total / (1024 * 1024), 2),
+                    "available_mb": round(memory.available / (1024 * 1024), 2),
+                    "used_mb": round(memory.used / (1024 * 1024), 2),
+                    "percent": memory.percent
+                },
+                "disk": {
+                    "total_gb": round(disk.total / (1024 * 1024 * 1024), 2),
+                    "used_gb": round(disk.used / (1024 * 1024 * 1024), 2),
+                    "free_gb": round(disk.free / (1024 * 1024 * 1024), 2),
+                    "percent": disk.percent
+                },
+                "process": {
+                    "rss_mb": round(process_memory.rss / (1024 * 1024), 2),
+                    "vms_mb": round(process_memory.vms / (1024 * 1024), 2),
+                    "open_files": len(process.open_files()) if hasattr(process, 'open_files') else 0,
+                    "threads": process.num_threads()
+                },
+                "network": {
+                    "connections": connections
+                }
+            }
+            
+            return cls._metrics
+        except ImportError:
+            # psutil 未安装
+            return {"error": "psutil not installed"}
+        except Exception as e:
+            logger.error(f"Failed to collect system metrics: {e}")
+            return {"error": str(e)}
+    
+    @classmethod
+    def get_cached(cls) -> Dict[str, Any]:
+        """获取缓存的系统指标"""
+        return cls._metrics
+
+
+# ============= 技能执行指标 =============
+
+class SkillExecutionMetrics:
+    """技能执行指标"""
+    
+    _stats: Dict[str, Dict[str, Any]] = defaultdict(lambda: {
+        "total_executions": 0,
+        "success_count": 0,
+        "failure_count": 0,
+        "timeout_count": 0,
+        "total_time_ms": 0,
+        "last_executed": None
+    })
+    
+    @classmethod
+    async def record_execution(
+        cls,
+        skill_id: int,
+        success: bool,
+        execution_time_ms: int,
+        error_code: Optional[str] = None
+    ):
+        """记录技能执行"""
+        key = f"skill:{skill_id}"
+        stats = cls._stats[key]
+        
+        stats["total_executions"] += 1
+        stats["total_time_ms"] += execution_time_ms
+        stats["last_executed"] = datetime.utcnow().isoformat()
+        
+        if success:
+            stats["success_count"] += 1
+        else:
+            stats["failure_count"] += 1
+            if error_code == "TIMEOUT":
+                stats["timeout_count"] += 1
+        
+        # 记录到 Redis
+        if cache._connected and cache.client:
+            try:
+                today = datetime.utcnow().strftime("%Y-%m-%d")
+                await cache.client.hincrby(f"monitor:skills:{today}", f"{skill_id}:total", 1)
+                if success:
+                    await cache.client.hincrby(f"monitor:skills:{today}", f"{skill_id}:success", 1)
+                else:
+                    await cache.client.hincrby(f"monitor:skills:{today}", f"{skill_id}:failure", 1)
+            except Exception as e:
+                logger.error(f"Failed to record skill execution: {e}")
+    
+    @classmethod
+    def get_stats(cls) -> Dict[str, Any]:
+        """获取技能执行统计"""
+        result = {}
+        for key, stats in cls._stats.items():
+            if stats["total_executions"] > 0:
+                result[key] = {
+                    "total_executions": stats["total_executions"],
+                    "success_rate": round(
+                        stats["success_count"] / stats["total_executions"] * 100, 2
+                    ),
+                    "avg_time_ms": round(
+                        stats["total_time_ms"] / stats["total_executions"], 2
+                    ),
+                    "timeout_count": stats["timeout_count"],
+                    "last_executed": stats["last_executed"]
+                }
+        return result
+
+
+# ============= 健康检查详细信息 =============
+
+class HealthChecker:
+    """健康检查器"""
+    
+    @staticmethod
+    async def check_database() -> Dict[str, Any]:
+        """检查数据库健康状态"""
+        from app.database import check_db_connection
+        return await check_db_connection()
+    
+    @staticmethod
+    async def check_redis() -> Dict[str, Any]:
+        """检查 Redis 健康状态"""
+        if not cache._connected or not cache.client:
+            return {"status": "unhealthy", "error": "Not connected"}
+        
+        try:
+            start = time.time()
+            await cache.client.ping()
+            latency_ms = round((time.time() - start) * 1000, 2)
+            
+            info = await cache.client.info()
+            
+            return {
+                "status": "healthy",
+                "latency_ms": latency_ms,
+                "connected_clients": info.get("connected_clients", 0),
+                "used_memory_human": info.get("used_memory_human", "unknown"),
+                "uptime_seconds": info.get("uptime_in_seconds", 0)
+            }
+        except Exception as e:
+            return {"status": "unhealthy", "error": str(e)}
+    
+    @staticmethod
+    async def check_disk_space() -> Dict[str, Any]:
+        """检查磁盘空间"""
+        try:
+            import shutil
+            total, used, free = shutil.disk_usage('/')
+            return {
+                "status": "healthy" if free > 1024 * 1024 * 1024 else "warning",  # 1GB 警告阈值
+                "total_gb": round(total / (1024 * 1024 * 1024), 2),
+                "used_gb": round(used / (1024 * 1024 * 1024), 2),
+                "free_gb": round(free / (1024 * 1024 * 1024), 2),
+                "percent_used": round(used / total * 100, 2)
+            }
+        except Exception as e:
+            return {"status": "unknown", "error": str(e)}
+    
+    @classmethod
+    async def get_full_health(cls) -> Dict[str, Any]:
+        """获取完整健康检查报告"""
+        checks = {
+            "database": await cls.check_database(),
+            "redis": await cls.check_redis(),
+            "disk": await cls.check_disk_space()
+        }
+        
+        # 判断整体状态
+        all_healthy = all(
+            check.get("status") == "healthy"
+            for check in checks.values()
+        )
+        
+        return {
+            "status": "healthy" if all_healthy else "degraded",
+            "timestamp": datetime.utcnow().isoformat(),
+            "checks": checks,
+            "version": "1.0.0"
+        }
