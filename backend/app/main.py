@@ -1,11 +1,13 @@
 """
 FastAPI主应用 - 优化版
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 import logging
 import sys
+import time
+import uuid
 
 from app.config import settings
 from app.database import init_db, close_db
@@ -24,6 +26,69 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+
+async def request_logging_middleware(request: Request, call_next):
+    """
+    请求日志中间件
+    
+    记录每个请求的：
+    - 请求路径 (path)
+    - 请求方法 (method)
+    - 请求耗时 (duration_ms)
+    - 响应状态码 (status_code)
+    - 请求ID (request_id)
+    """
+    # 生成请求ID
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    
+    # 记录请求开始时间
+    start_time = time.perf_counter()
+    
+    # 获取客户端IP
+    client_ip = request.client.host if request.client else "unknown"
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        client_ip = forwarded_for.split(",")[0].strip()
+    
+    # 处理请求
+    try:
+        response: Response = await call_next(request)
+        
+        # 计算耗时
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        
+        # 记录访问日志
+        logger.info(
+            f'request_completed | '
+            f'request_id="{request_id}" | '
+            f'method="{request.method}" | '
+            f'path="{request.url.path}" | '
+            f'status_code={response.status_code} | '
+            f'duration_ms={duration_ms:.2f} | '
+            f'client_ip="{client_ip}"'
+        )
+        
+        # 添加请求ID到响应头
+        response.headers["X-Request-ID"] = request_id
+        
+        return response
+        
+    except Exception as e:
+        # 计算耗时
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        
+        # 记录错误日志
+        logger.error(
+            f'request_failed | '
+            f'request_id="{request_id}" | '
+            f'method="{request.method}" | '
+            f'path="{request.url.path}" | '
+            f'duration_ms={duration_ms:.2f} | '
+            f'client_ip="{client_ip}" | '
+            f'error="{str(e)}"'
+        )
+        raise
 
 
 # 创建FastAPI应用
@@ -103,6 +168,9 @@ app.add_middleware(
 
 # 限流中间件
 app.middleware("http")(rate_limit_middleware)
+
+# 请求日志中间件
+app.middleware("http")(request_logging_middleware)
 
 
 @app.on_event("startup")
