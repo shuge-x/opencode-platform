@@ -22,6 +22,23 @@ logger = logging.getLogger(__name__)
 HEARTBEAT_TIMEOUT = getattr(settings, 'WS_HEARTBEAT_TIMEOUT', 60)
 HEARTBEAT_INTERVAL = getattr(settings, 'WS_HEARTBEAT_INTERVAL', 30)
 
+
+def submit_celery_task_safe(task_func, *args, **kwargs):
+    """
+    安全提交 Celery 任务，包含错误处理和日志记录
+    
+    Returns:
+        AsyncResult or None: 任务结果对象，失败时返回 None
+    """
+    try:
+        task = task_func.delay(*args, **kwargs)
+        logger.info(f"Celery task submitted via WebSocket: {task.id}")
+        return task
+    except Exception as e:
+        logger.error(f"Failed to submit Celery task via WebSocket: {e}")
+        return None
+
+
 router = APIRouter()
 
 
@@ -193,12 +210,26 @@ async def websocket_endpoint(
                     # 处理对话消息
                     prompt = message.get('content', '')
 
-                    # 提交Celery任务
-                    task = execute_agent_task.delay(
+                    # 提交Celery任务（带错误处理）
+                    task = submit_celery_task_safe(
+                        execute_agent_task,
                         prompt=prompt,
                         session_id=session_id,
                         user_id=user_id
                     )
+                    
+                    if not task:
+                        # 任务提交失败，通知用户
+                        await manager.send_personal_message(
+                            {
+                                'type': 'error',
+                                'message': 'Task processing service unavailable',
+                                'timestamp': datetime.utcnow().isoformat()
+                            },
+                            session_id,
+                            user_id
+                        )
+                        continue
 
                     # 发送任务已接收确认
                     await manager.send_personal_message(

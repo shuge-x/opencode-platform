@@ -6,6 +6,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
+import logging
+
 from app.database import get_db
 from app.core.security import get_current_user
 from app.models.session import Session
@@ -21,6 +23,33 @@ from app.schemas.session import (
 from tasks.agent_tasks import execute_agent_task
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+def submit_celery_task(task_func, *args, **kwargs):
+    """
+    安全提交 Celery 任务，包含错误处理
+    
+    Args:
+        task_func: Celery 任务函数
+        *args, **kwargs: 任务参数
+        
+    Returns:
+        AsyncResult: 任务结果对象
+        
+    Raises:
+        HTTPException: 任务提交失败时
+    """
+    try:
+        task = task_func.delay(*args, **kwargs)
+        logger.info(f"Celery task submitted: {task.id}")
+        return task
+    except Exception as e:
+        logger.error(f"Failed to submit Celery task: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Task processing service unavailable. Please try again later."
+        )
 
 
 @router.post("", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
@@ -191,8 +220,9 @@ async def send_message(
             detail="Session not found"
         )
 
-    # 提交Celery任务
-    task = execute_agent_task.delay(
+    # 提交Celery任务（带错误处理）
+    task = submit_celery_task(
+        execute_agent_task,
         prompt=chat_request.message,
         session_id=session_id,
         user_id=current_user.id
