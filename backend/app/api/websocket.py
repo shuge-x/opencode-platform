@@ -88,8 +88,22 @@ async def websocket_endpoint(
         await websocket.close(code=4001, reason="Unauthorized")
         return
 
-    # 验证会话
-    # TODO: 查询数据库验证session_id存在且属于该用户
+    # 验证会话归属
+    # 查询数据库验证 session_id 存在且属于该用户
+    from sqlalchemy import select
+    
+    result = await db.execute(
+        select(Session).where(
+            Session.id == int(session_id),
+            Session.user_id == int(user_id)
+        )
+    )
+    session = result.scalar_one_or_none()
+    
+    if not session:
+        logger.warning(f"Session validation failed: session_id={session_id}, user_id={user_id}")
+        await websocket.close(code=4004, reason="Session not found or access denied")
+        return
 
     # 建立连接
     await manager.connect(websocket, session_id, user_id)

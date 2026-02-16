@@ -137,6 +137,30 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+def verify_token(token: str) -> Optional[str]:
+    """
+    验证JWT令牌并返回用户ID
+    
+    Args:
+        token: JWT令牌
+        
+    Returns:
+        Optional[str]: 用户ID字符串，验证失败返回None
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+        return user_id
+    except JWTError:
+        return None
+
+
 def create_token_pair(user_id: int) -> Dict[str, str]:
     """
     创建访问令牌和刷新令牌对
