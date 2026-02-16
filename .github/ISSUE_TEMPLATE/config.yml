@@ -1,0 +1,9 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 查看文档
+    url: https://github.com/shuge-x/opencode-platform/blob/main/README.md
+    about: 查看项目文档和使用指南
+  - name: 💬 加入讨论
+    url: https://github.com/shuge-x/opencode-platform/discussions
+    about: 参与社区讨论
