@@ -34,6 +34,17 @@ app = FastAPI(
 
 OpenCode Platform 是一个强大的技能管理和执行平台。
 
+### API 版本
+
+当前版本: **v1**
+
+所有 API 端点前缀: `/api/v1/`
+
+例如：
+- 用户认证: `POST /api/v1/auth/login`
+- 技能列表: `GET /api/v1/skills`
+- 文件上传: `POST /api/v1/files/upload`
+
 ### 主要功能
 - 🔐 用户认证和授权
 - 🎯 技能创建、管理和执行
@@ -61,6 +72,7 @@ OpenCode Platform 是一个强大的技能管理和执行平台。
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    openapi_prefix="/api/v1",
     openapi_tags=[
         {
             "name": "auth",
@@ -142,6 +154,8 @@ async def root():
     return {
         "message": "OpenCode Platform API",
         "version": "1.0.0",
+        "api_version": "v1",
+        "api_prefix": "/api/v1",
         "docs": "/docs",
         "redoc": "/redoc"
     }
@@ -161,6 +175,8 @@ from app.api import api_router
 from app.api import websocket as session_websocket
 from app.api import debug_websocket
 
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+app.include_router(session_websocket.router)
+app.include_router(debug_websocket.router)
 app.include_router(session_websocket.router)
 app.include_router(debug_websocket.router)
