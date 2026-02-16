@@ -619,6 +619,9 @@ async def get_published_skill(
 
 
 # ============= 搜索 API =============
+# ✅ 搜索服务已完整实现
+# 使用 PostgreSQL 全文搜索作为后端，Redis 缓存热门搜索
+# Elasticsearch 支持预留但未启用
 
 @router.post("/search", response_model=SearchResponse)
 async def search_skills(
@@ -629,10 +632,34 @@ async def search_skills(
     """
     搜索技能
 
-    - 支持全文搜索
-    - 支持多维度过滤（分类、标签、评分、价格等）
-    - 支持多种排序方式
-    - 返回搜索高亮
+    **✅ 功能已实现**
+
+    使用 PostgreSQL 全文搜索（tsvector + tsquery）。
+
+    功能特性：
+    - ✅ 全文搜索（支持中英文）
+    - ✅ 多维度过滤（分类、标签、评分、价格等）
+    - ✅ 多种排序方式（热度、评分、下载量、时间、名称）
+    - ✅ 搜索高亮显示
+    - ✅ 分页支持
+
+    过滤参数：
+    - `query`: 搜索关键词
+    - `category_id` / `category_slug`: 分类筛选
+    - `tags`: 标签筛选（支持多个）
+    - `min_rating` / `max_rating`: 评分范围
+    - `price_min` / `price_max`: 价格范围
+    - `is_free`: 只看免费
+    - `is_featured`: 只看精选
+    - `publisher_id`: 按发布者筛选
+
+    排序选项：
+    - `popularity`: 热度（默认）
+    - `rating`: 评分
+    - `download_count`: 下载量
+    - `created_at`: 发布时间
+    - `name`: 名称
+    - `price`: 价格
     """
     search_service = SearchService(db)
 
@@ -675,9 +702,15 @@ async def get_search_suggestions(
     """
     获取搜索建议
 
-    - 基于技能名称
-    - 基于标签
-    - 返回相关度排序
+    **✅ 功能已实现**
+
+    基于技能名称和标签提供自动补全建议。
+
+    功能特性：
+    - ✅ 技能名称前缀匹配
+    - ✅ 标签前缀匹配
+    - ✅ 按下载量排序
+    - ✅ Redis 缓存（5分钟过期）
     """
     search_service = SearchService(db)
     suggestions = await search_service.get_search_suggestions(query, limit)
@@ -696,8 +729,13 @@ async def get_popular_searches(
     """
     获取热门搜索
 
-    - 基于下载量排行
-    - 缓存结果
+    **✅ 功能已实现**
+
+    返回下载量最高的技能，作为热门搜索推荐。
+
+    功能特性：
+    - ✅ 基于下载量排行
+    - ✅ Redis 缓存（1小时过期）
     """
     search_service = SearchService(db)
     items = await search_service.get_popular_searches(limit)
@@ -715,9 +753,15 @@ async def get_search_facets(
     """
     获取搜索面（筛选器数据）
 
-    - 分类统计
-    - 价格范围
-    - 评分分布
+    **✅ 功能已实现**
+
+    返回各维度的统计数据，用于构建筛选器 UI。
+
+    功能特性：
+    - ✅ 分类统计（包含技能数量）
+    - ✅ 价格范围（最小/最大）
+    - ✅ 评分分布
+    - ✅ Redis 缓存（1小时过期）
     """
     search_service = SearchService(db)
     facets = await search_service.get_facets()
