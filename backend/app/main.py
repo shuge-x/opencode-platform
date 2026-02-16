@@ -12,6 +12,7 @@ from app.database import init_db, close_db
 from app.core.rate_limit import rate_limit_middleware
 from app.core.exceptions import register_exception_handlers
 from app.core.cache import cache
+from app.core.monitoring import HealthChecker, MonitoringStats, SystemMetrics
 
 # 配置日志
 logging.basicConfig(
@@ -149,10 +150,70 @@ async def root():
 
 @app.get("/health", tags=["health"])
 async def health_check():
-    """健康检查"""
+    """基础健康检查（快速响应）"""
     return {
         "status": "healthy",
         "cache": "connected" if cache._connected else "disconnected"
+    }
+
+
+@app.get("/health/detailed", tags=["health"])
+async def health_check_detailed():
+    """
+    详细健康检查
+    
+    返回所有依赖服务的详细健康状态
+    """
+    return await HealthChecker.get_full_health()
+
+
+@app.get("/health/live", tags=["health"])
+async def liveness_probe():
+    """Kubernetes 存活探针"""
+    return {"status": "alive"}
+
+
+@app.get("/health/ready", tags=["health"])
+async def readiness_probe():
+    """Kubernetes 就绪探针"""
+    # 检查关键依赖
+    db_health = await HealthChecker.check_database()
+    redis_health = await HealthChecker.check_redis()
+    
+    is_ready = (
+        db_health.get("status") == "healthy"
+        # Redis 可以降级运行
+    )
+    
+    if is_ready:
+        return {"status": "ready"}
+    else:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "status": "not_ready",
+                "checks": {
+                    "database": db_health.get("status"),
+                    "redis": redis_health.get("status")
+                }
+            }
+        )
+
+
+@app.get("/metrics", tags=["monitoring"])
+async def get_metrics():
+    """
+    获取监控指标
+    
+    返回性能统计、错误统计和系统指标
+    """
+    stats = await MonitoringStats.get_full_stats()
+    system = await SystemMetrics.collect()
+    
+    return {
+        "monitoring": stats,
+        "system": system
     }
 
 
