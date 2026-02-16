@@ -3,6 +3,7 @@ WebSocket路由 - 实时通信
 """
 import json
 import logging
+import asyncio
 from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,8 +14,13 @@ from app.models.user import User
 from app.schemas.session import Message
 from tasks.agent_tasks import execute_agent_task
 from datetime import datetime
+from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+# 心跳超时配置（秒）
+HEARTBEAT_TIMEOUT = getattr(settings, 'WS_HEARTBEAT_TIMEOUT', 60)
+HEARTBEAT_INTERVAL = getattr(settings, 'WS_HEARTBEAT_INTERVAL', 30)
 
 router = APIRouter()
 
@@ -23,8 +29,8 @@ class ConnectionManager:
     """WebSocket连接管理器"""
 
     def __init__(self):
-        # 存储活跃连接: {session_id: {user_id: WebSocket}}
-        self.active_connections: dict[str, dict[str, WebSocket]] = {}
+        # 存储活跃连接: {session_id: {user_id: {"websocket": WebSocket, "last_activity": datetime}}}
+        self.active_connections: dict[str, dict[str, dict]] = {}
 
     async def connect(self, websocket: WebSocket, session_id: str, user_id: str):
         """建立WebSocket连接"""
@@ -33,10 +39,13 @@ class ConnectionManager:
         if session_id not in self.active_connections:
             self.active_connections[session_id] = {}
 
-        self.active_connections[session_id][user_id] = websocket
+        self.active_connections[session_id][user_id] = {
+            "websocket": websocket,
+            "last_activity": datetime.utcnow()
+        }
         logger.info(f"WebSocket connected: session={session_id}, user={user_id}")
 
-    def disconnect(self, session_id: str, user_id: str):
+    def disconnect(self, session_id: str, user_id: str, reason: str = "normal"):
         """断开WebSocket连接"""
         if session_id in self.active_connections:
             self.active_connections[session_id].pop(user_id, None)
@@ -44,19 +53,30 @@ class ConnectionManager:
             if not self.active_connections[session_id]:
                 del self.active_connections[session_id]
 
-        logger.info(f"WebSocket disconnected: session={session_id}, user={user_id}")
+        logger.info(f"WebSocket disconnected: session={session_id}, user={user_id}, reason={reason}")
+
+    def update_activity(self, session_id: str, user_id: str):
+        """更新最后活动时间"""
+        if session_id in self.active_connections and user_id in self.active_connections[session_id]:
+            self.active_connections[session_id][user_id]["last_activity"] = datetime.utcnow()
+
+    def get_last_activity(self, session_id: str, user_id: str) -> Optional[datetime]:
+        """获取最后活动时间"""
+        if session_id in self.active_connections and user_id in self.active_connections[session_id]:
+            return self.active_connections[session_id][user_id]["last_activity"]
+        return None
 
     async def send_personal_message(self, message: dict, session_id: str, user_id: str):
         """发送个人消息"""
         if session_id in self.active_connections and user_id in self.active_connections[session_id]:
-            websocket = self.active_connections[session_id][user_id]
+            websocket = self.active_connections[session_id][user_id]["websocket"]
             await websocket.send_json(message)
 
     async def broadcast(self, message: dict, session_id: str):
         """广播消息到会话中的所有用户"""
         if session_id in self.active_connections:
-            for websocket in self.active_connections[session_id].values():
-                await websocket.send_json(message)
+            for conn_data in self.active_connections[session_id].values():
+                await conn_data["websocket"].send_json(message)
 
 
 manager = ConnectionManager()
@@ -108,10 +128,62 @@ async def websocket_endpoint(
     # 建立连接
     await manager.connect(websocket, session_id, user_id)
 
+    # 心跳任务
+    async def heartbeat_task():
+        """定期发送心跳检测"""
+        try:
+            while True:
+                await asyncio.sleep(HEARTBEAT_INTERVAL)
+                
+                # 检查是否超时
+                last_activity = manager.get_last_activity(session_id, user_id)
+                if last_activity:
+                    idle_seconds = (datetime.utcnow() - last_activity).total_seconds()
+                    
+                    if idle_seconds > HEARTBEAT_TIMEOUT:
+                        logger.warning(
+                            f"WebSocket heartbeat timeout: session={session_id}, "
+                            f"user_id={user_id}, idle_seconds={idle_seconds:.1f}"
+                        )
+                        await websocket.close(code=4002, reason="Heartbeat timeout")
+                        return
+                    
+                    # 发送心跳 ping
+                    try:
+                        await manager.send_personal_message(
+                            {'type': 'ping', 'timestamp': datetime.utcnow().isoformat()},
+                            session_id,
+                            user_id
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to send heartbeat: {e}")
+                        return
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            logger.error(f"Heartbeat task error: {e}")
+
+    # 启动心跳任务
+    heartbeat = asyncio.create_task(heartbeat_task())
+
     try:
         while True:
-            # 接收消息
-            data = await websocket.receive_text()
+            # 使用超时接收消息
+            try:
+                data = await asyncio.wait_for(
+                    websocket.receive_text(),
+                    timeout=HEARTBEAT_TIMEOUT
+                )
+            except asyncio.TimeoutError:
+                logger.warning(
+                    f"WebSocket receive timeout: session={session_id}, "
+                    f"user_id={user_id}, timeout={HEARTBEAT_TIMEOUT}s"
+                )
+                await websocket.close(code=4002, reason="Connection timeout")
+                break
+            
+            # 更新活动时间
+            manager.update_activity(session_id, user_id)
 
             try:
                 message = json.loads(data)
@@ -142,10 +214,14 @@ async def websocket_endpoint(
                     # TODO: 轮询任务状态并推送更新
                     # 或者使用Celery的事件系统实时推送
 
+                elif message_type == 'pong':
+                    # 心跳响应 - 已通过 update_activity 更新时间
+                    logger.debug(f"Heartbeat pong received: session={session_id}, user={user_id}")
+
                 elif message_type == 'ping':
-                    # 心跳检测
+                    # 客户端发起的心跳
                     await manager.send_personal_message(
-                        {'type': 'pong'},
+                        {'type': 'pong', 'timestamp': datetime.utcnow().isoformat()},
                         session_id,
                         user_id
                     )
@@ -159,10 +235,20 @@ async def websocket_endpoint(
                 )
 
     except WebSocketDisconnect:
-        manager.disconnect(session_id, user_id)
+        manager.disconnect(session_id, user_id, reason="client_disconnect")
         logger.info(f"WebSocket disconnected normally: session={session_id}")
 
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
-        manager.disconnect(session_id, user_id)
-        await websocket.close(code=4000, reason=str(e))
+        manager.disconnect(session_id, user_id, reason=f"error: {str(e)}")
+        try:
+            await websocket.close(code=4000, reason=str(e))
+        except:
+            pass
+    finally:
+        # 取消心跳任务
+        heartbeat.cancel()
+        try:
+            await heartbeat
+        except asyncio.CancelledError:
+            pass
