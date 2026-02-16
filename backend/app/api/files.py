@@ -36,6 +36,23 @@ ALLOWED_EXTENSIONS = {
     '.yaml', '.yml', '.ini', '.cfg', '.log', '.sql', '.sh', '.bat'
 }
 
+# 危险文件类型（即使改扩展名也不允许）
+DANGEROUS_EXTENSIONS = {
+    '.exe', '.dll', '.so', '.bat', '.cmd', '.com', '.scr', '.pif',
+    '.vbs', '.js', '.jse', '.wsf', '.wsh', '.msi', '.jar'
+}
+
+# 文件魔数（用于验证真实文件类型）
+FILE_SIGNATURES = {
+    b'\x89PNG\r\n\x1a\n': 'image/png',
+    b'\xff\xd8\xff': 'image/jpeg',
+    b'GIF87a': 'image/gif',
+    b'GIF89a': 'image/gif',
+    b'%PDF': 'application/pdf',
+    b'PK\x03\x04': 'application/zip',
+    b'\x1f\x8b': 'application/gzip',
+}
+
 # 最大文件大小（50MB）
 MAX_FILE_SIZE = 50 * 1024 * 1024
 
@@ -48,7 +65,62 @@ def get_file_extension(filename: str) -> str:
 def is_allowed_file(filename: str) -> bool:
     """检查文件类型是否允许"""
     ext = get_file_extension(filename)
-    return ext in ALLOWED_EXTENSIONS
+    return ext in ALLOWED_EXTENSIONS and ext not in DANGEROUS_EXTENSIONS
+
+
+def is_dangerous_file(filename: str) -> bool:
+    """检查是否为危险文件类型"""
+    ext = get_file_extension(filename)
+    return ext in DANGEROUS_EXTENSIONS
+
+
+def detect_file_type(content: bytes) -> Optional[str]:
+    """通过文件头检测真实文件类型"""
+    for signature, mime_type in FILE_SIGNATURES.items():
+        if content.startswith(signature):
+            return mime_type
+    return None
+
+
+def validate_file_content(filename: str, content: bytes) -> tuple[bool, str]:
+    """
+    验证文件内容与扩展名是否匹配
+    
+    Returns:
+        (is_valid, reason)
+    """
+    ext = get_file_extension(filename)
+    
+    # 对于图片和PDF，检查魔数
+    if ext in {'.png', '.jpg', '.jpeg', '.gif', '.pdf'}:
+        detected = detect_file_type(content)
+        if detected:
+            expected_mimes = {
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg',
+                '.gif': 'image/gif',
+                '.pdf': 'application/pdf',
+            }
+            expected = expected_mimes.get(ext)
+            if expected and detected != expected:
+                return False, f"File content mismatch: expected {expected}, detected {detected}"
+    
+    # 检查是否包含可疑内容（简单的启发式检查）
+    suspicious_patterns = [
+        b'<script',
+        b'javascript:',
+        b'data:text/html',
+        b'<?php',
+        b'<%',
+    ]
+    
+    content_lower = content[:1024].lower()  # 只检查前1KB
+    for pattern in suspicious_patterns:
+        if pattern in content_lower:
+            return False, f"Suspicious content detected"
+    
+    return True, "OK"
 
 
 @router.post("/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED)
@@ -64,19 +136,38 @@ async def upload_file(
     - 支持50MB以内的文件
     - 自动检测MIME类型
     - 存储到用户专属目录
+    - 安全验证（白名单、内容检查）
     """
     # 检查文件名
     if not file.filename:
+        logger.warning(f"Upload rejected: missing filename, user_id={current_user.id}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Filename is required"
         )
     
-    # 检查文件类型
-    if not is_allowed_file(file.filename):
+    file_ext = get_file_extension(file.filename)
+    
+    # 检查危险文件类型
+    if is_dangerous_file(file.filename):
+        logger.warning(
+            f"Security: Dangerous file type rejected | "
+            f"user_id={current_user.id} | filename={file.filename} | ext={file_ext}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+            detail="File type not allowed for security reasons"
+        )
+    
+    # 检查文件类型白名单
+    if not is_allowed_file(file.filename):
+        logger.warning(
+            f"Security: File type not in whitelist | "
+            f"user_id={current_user.id} | filename={file.filename} | ext={file_ext}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File type not allowed. Allowed types: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
         )
     
     # 读取文件内容
@@ -84,13 +175,28 @@ async def upload_file(
     
     # 检查文件大小
     if len(content) > MAX_FILE_SIZE:
+        logger.warning(
+            f"Security: File too large | "
+            f"user_id={current_user.id} | filename={file.filename} | size={len(content)}"
+        )
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
         )
     
+    # 验证文件内容
+    is_valid, validation_reason = validate_file_content(file.filename, content)
+    if not is_valid:
+        logger.warning(
+            f"Security: File content validation failed | "
+            f"user_id={current_user.id} | filename={file.filename} | reason={validation_reason}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File validation failed: {validation_reason}"
+        )
+    
     # 生成唯一文件名
-    file_ext = get_file_extension(file.filename)
     stored_filename = f"{uuid.uuid4()}{file_ext}"
     
     # 创建用户目录
@@ -121,6 +227,13 @@ async def upload_file(
     db.add(db_file)
     await db.commit()
     await db.refresh(db_file)
+    
+    # 记录上传成功日志
+    logger.info(
+        f"Security: File uploaded successfully | "
+        f"user_id={current_user.id} | file_id={db_file.id} | "
+        f"filename={file.filename} | size={len(content)} | mime_type={mime_type}"
+    )
     
     return FileUploadResponse(
         id=db_file.id,
