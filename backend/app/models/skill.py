@@ -18,6 +18,12 @@ class Skill(Base):
     name = Column(String(100), nullable=False, index=True)
     description = Column(Text, nullable=True)
     version = Column(String(20), default="1.0.0", nullable=False)
+    
+    # 新增字段
+    prompt_template = Column(Text, nullable=True)
+    category = Column(String(50), nullable=True, index=True)
+    slug = Column(String(120), unique=True, index=True)
+    use_count = Column(Integer, default=0, nullable=False)
 
     # 技能类型
     skill_type = Column(String(50), default="custom", nullable=False)  # custom, template, imported

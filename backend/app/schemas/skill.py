@@ -10,6 +10,9 @@ class SkillCreate(BaseModel):
     """创建技能"""
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
+    prompt_template: Optional[str] = None
+    category: Optional[str] = Field(None, max_length=50)
+    slug: Optional[str] = Field(None, max_length=120)
     skill_type: str = "custom"
     config: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
@@ -20,6 +23,9 @@ class SkillUpdate(BaseModel):
     """更新技能"""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
+    prompt_template: Optional[str] = None
+    category: Optional[str] = Field(None, max_length=50)
+    slug: Optional[str] = Field(None, max_length=120)
     config: Optional[Dict[str, Any]] = None
     tags: Optional[List[str]] = None
     is_public: Optional[bool] = None
@@ -62,6 +68,10 @@ class SkillResponse(BaseModel):
     user_id: int
     name: str
     description: Optional[str] = None
+    prompt_template: Optional[str] = None
+    category: Optional[str] = None
+    slug: Optional[str] = None
+    use_count: int
     version: str
     skill_type: str
     config: Optional[Dict[str, Any]] = None
