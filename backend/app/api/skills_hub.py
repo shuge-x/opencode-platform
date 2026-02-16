@@ -411,7 +411,10 @@ async def get_skill_versions(
     )
 
 
-@router.post("/{skill_id}/versions", response_model=SkillPackageResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{skill_id}/versions", response_model=SkillPackageResponse, status_code=status.HTTP_201_CREATED,
+             responses={
+                 501: {"description": "Not Implemented - Version creation from skill files not yet available"}
+             })
 async def publish_new_version(
     skill_id: int,
     request: VersionCreateRequest,
@@ -421,10 +424,24 @@ async def publish_new_version(
 ):
     """
     发布新版本
-    
+
+    **⚠️ 注意：此 API 尚未实现，当前返回 501 Not Implemented**
+
+    功能规划：
     - 从当前技能文件创建新版本包
-    - 上传到MinIO
+    - 自动打包为 .tar.gz 格式
+    - 上传到 MinIO 对象存储
     - 更新版本信息
+
+    当前替代方案：
+    - 使用 `POST /skills_hub/upload` 直接上传打包好的技能包
+
+    ---
+
+    **状态**: 🚧 未实现 (Not Implemented)
+
+    **返回码**:
+    - 501: 功能尚未实现
     """
     # 检查技能访问权限（需要write权限）
     published_skill = await check_skill_access(db, skill_id, current_user, "write")
@@ -458,13 +475,21 @@ async def publish_new_version(
     
     # TODO: 实际打包逻辑 - 从技能文件创建tar.gz包
     # 这里需要实现从Skill和SkillFile创建压缩包的逻辑
-    # 暂时返回一个占位响应
+    # 当前版本使用 POST /skills_hub/upload 接口上传预打包的技能包
     
-    logger.info(f"New version {request.version} published for skill {skill_id}")
+    logger.info(
+        f"Version creation attempted but not implemented: "
+        f"skill_id={skill_id}, version={request.version}, user_id={current_user.id}"
+    )
     
     raise HTTPException(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Version creation from skill files not yet implemented"
+        detail={
+            "message": "Version creation from skill files is not yet implemented",
+            "alternative": "Use POST /skills_hub/upload to upload a pre-packaged skill package",
+            "skill_id": skill_id,
+            "requested_version": request.version
+        }
     )
 
 
