@@ -4,6 +4,7 @@
 import os
 import uuid
 import mimetypes
+import logging
 from typing import Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
@@ -18,6 +19,8 @@ from app.schemas.file import (
     FileUpdate, FileResponse, FileListResponse, FileUploadResponse
 )
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -297,16 +300,32 @@ async def delete_file(
             detail="File not found"
         )
     
-    # 删除物理文件
-    if os.path.exists(db_file.file_path):
-        try:
-            os.remove(db_file.file_path)
-        except Exception as e:
-            # 记录错误但继续删除数据库记录
-            print(f"Error deleting file: {e}")
+    file_path = db_file.file_path
+    filename = db_file.filename
     
-    # 删除数据库记录
-    await db.delete(db_file)
-    await db.commit()
+    # 先删除数据库记录（在事务中）
+    try:
+        await db.delete(db_file)
+        await db.commit()
+        logger.info(f"Database record deleted: file_id={file_id}, user_id={current_user.id}")
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Failed to delete database record: file_id={file_id}, error={e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete file record"
+        )
+    
+    # 删除物理文件（数据库记录已删除，即使失败也不回滚）
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            logger.info(f"Physical file deleted: {file_path}")
+        except PermissionError as e:
+            logger.warning(f"Permission denied when deleting file: {file_path}, error={e}")
+        except OSError as e:
+            logger.error(f"Failed to delete physical file: {file_path}, error={e}")
+    else:
+        logger.warning(f"Physical file not found on disk: {file_path}")
     
     return None
