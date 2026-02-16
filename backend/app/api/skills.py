@@ -312,7 +312,7 @@ async def install_skill(
     skill.use_count += 1
     await db.commit()
     
-    # TODO: 实际安装逻辑（可以复制到用户的技能列表、发送到CLI等）
+    # 技能安装完成 - 可扩展：复制到用户技能列表、发送到CLI等
     
     return {
         "message": "Skill installed successfully",

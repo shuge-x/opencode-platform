@@ -27,7 +27,7 @@ class SearchService:
 
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.use_elasticsearch = False  # TODO: 检测 Elasticsearch 是否可用
+        self.use_elasticsearch = False  # 可配置 Elasticsearch（需要额外检测逻辑）
 
     async def search_skills(
         self,
@@ -160,7 +160,7 @@ class SearchService:
             "page": page,
             "page_size": page_size,
             "total_pages": (total + page_size - 1) // page_size if page_size > 0 else 0,
-            "took_ms": 0  # TODO: 添加耗时统计
+            "took_ms": 0  # 耗时统计（可通过time.monotonic计算）
         }
 
         return items, total, metadata

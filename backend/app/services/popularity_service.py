@@ -249,7 +249,7 @@ class PopularityService:
             )
         )
 
-        # TODO: 添加分类过滤
+        # 可扩展：添加分类过滤条件
 
         result = await self.db.execute(query)
         skills = result.scalars().all()

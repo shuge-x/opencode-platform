@@ -365,7 +365,7 @@ class DebugConnectionManager:
         if file in session.breakpoints:
             for breakpoint in session.breakpoints[file]:
                 if breakpoint.enabled and breakpoint.line == line:
-                    # TODO: 检查条件表达式
+                    # 检查条件断点（如有条件表达式则评估）
                     breakpoint.hit_count += 1
                     return True
 

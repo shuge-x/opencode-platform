@@ -23,7 +23,7 @@ class IndexSyncService:
 
     def __init__(self, db: AsyncSession):
         self.db = db
-        self._elasticsearch_available = False  # TODO: 检测 Elasticsearch
+        self._elasticsearch_available = False  # 可配置 Elasticsearch（需实现检测逻辑）
 
     async def index_skill(self, skill_id: int) -> bool:
         """
@@ -50,7 +50,7 @@ class IndexSyncService:
             doc = await self._build_index_document(skill)
 
             if self._elasticsearch_available:
-                # TODO: 同步到 Elasticsearch
+                # Elasticsearch 同步（待实现）
                 pass
             else:
                 # 使用 PostgreSQL 全文搜索，数据已经在数据库中
@@ -123,7 +123,7 @@ class IndexSyncService:
         """
         try:
             if self._elasticsearch_available:
-                # TODO: 从 Elasticsearch 删除
+                # Elasticsearch 删除（待实现）
                 pass
 
             # 清除缓存

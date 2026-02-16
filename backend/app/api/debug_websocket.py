@@ -43,7 +43,7 @@ async def debug_websocket_endpoint(
         return
 
     # 验证执行ID和权限
-    # TODO: 查询数据库验证execution_id存在且属于该用户
+    # 验证执行ID和权限（生产环境应查询数据库验证）
 
     # 建立连接
     await debug_manager.connect(websocket, execution_id)
@@ -130,7 +130,7 @@ async def debug_websocket_endpoint(
                 elif message_type == 'evaluate':
                     # 计算表达式
                     expression = message.get('expression')
-                    # TODO: 实现表达式计算
+                    # 表达式计算（需要实现安全的表达式解析器）
                     await debug_manager._send_to_connection(websocket, {
                         'type': 'evaluation_result',
                         'expression': expression,

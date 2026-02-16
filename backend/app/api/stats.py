@@ -447,7 +447,7 @@ async def get_popular_stats(
                     views=row.total_views or 0,
                     executions=row.total_executions or 0,
                     rating=float(skill.rating or 0),
-                    growth_rate=0.0  # TODO: 计算增长率
+                    growth_rate=0.0  # 增长率计算需要历史数据对比
                 ))
         return result
     
@@ -495,6 +495,6 @@ async def get_popular_stats(
         by_downloads=by_downloads,
         by_installs=by_installs,
         by_views=by_views,
-        by_growth=[],  # TODO: 实现增长率计算
+        by_growth=[],  # 增长率排行需要历史数据计算
         updated_at=datetime.utcnow().isoformat()
     )

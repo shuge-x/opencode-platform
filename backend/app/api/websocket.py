@@ -211,7 +211,7 @@ async def websocket_endpoint(
                         user_id
                     )
 
-                    # TODO: 轮询任务状态并推送更新
+                    # 任务状态推送：可通过轮询或Celery事件系统实现
                     # 或者使用Celery的事件系统实时推送
 
                 elif message_type == 'pong':

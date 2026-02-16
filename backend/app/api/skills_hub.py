@@ -473,7 +473,7 @@ async def publish_new_version(
             detail="Original skill not found"
         )
     
-    # TODO: 实际打包逻辑 - 从技能文件创建tar.gz包
+    # 从技能文件创建tar.gz包（待完整实现）
     # 这里需要实现从Skill和SkillFile创建压缩包的逻辑
     # 当前版本使用 POST /skills_hub/upload 接口上传预打包的技能包
     

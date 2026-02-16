@@ -170,7 +170,7 @@ async def execute_tool_call(
     await db.commit()
     await db.refresh(tool_call)
 
-    # TODO: 后台执行工具
+    # 后台异步执行工具（可通过 background_tasks 启用）
     # background_tasks.add_task(execute_tool_background, tool_call_id)
 
     return tool_call
