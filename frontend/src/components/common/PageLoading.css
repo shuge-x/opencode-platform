@@ -1,0 +1,237 @@
+/* Page Loading Styles */
+
+/* ========== 顶部进度条 ========== */
+.top-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: transparent;
+  overflow: hidden;
+}
+
+.top-progress-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #1890ff 0%, #722ed1 100%);
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+  position: relative;
+}
+
+.top-progress-inner::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: progress-shine 1s infinite;
+}
+
+@keyframes progress-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ========== 页面骨架屏 ========== */
+.page-skeleton {
+  width: 100%;
+}
+
+.skeleton-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
+
+/* 首页骨架屏 */
+.home-skeleton .welcome-skeleton {
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  height: 100px;
+}
+
+.home-skeleton .welcome-skeleton .ant-skeleton {
+  width: 300px;
+}
+
+.home-skeleton .welcome-skeleton .ant-skeleton-title {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.home-skeleton .welcome-skeleton .ant-skeleton-paragraph li {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.skeleton-action-item {
+  flex: 1;
+}
+
+.skeleton-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stats-skeleton {
+  text-align: center;
+}
+
+.skeleton-recent {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* 列表骨架屏 */
+.list-skeleton .list-item-skeleton {
+  margin-bottom: 12px;
+}
+
+/* 卡片网格骨架屏 */
+.card-grid-skeleton {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.card-skeleton {
+  height: 100%;
+}
+
+/* 详情页骨架屏 */
+.detail-skeleton .skeleton-card {
+  margin-bottom: 24px;
+}
+
+/* 响应式骨架屏 */
+@media (max-width: 1200px) {
+  .skeleton-recent {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .card-grid-skeleton {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .skeleton-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .card-grid-skeleton {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .skeleton-actions {
+    flex-direction: column;
+  }
+  
+  .skeleton-recent {
+    grid-template-columns: 1fr;
+  }
+  
+  .skeleton-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .card-grid-skeleton {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== 空状态 ========== */
+.empty-state-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 40px 20px;
+}
+
+.empty-state-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-icon-wrapper {
+  margin-bottom: 24px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  opacity: 0.8;
+}
+
+.empty-icon.session {
+  color: #1890ff;
+}
+
+.empty-icon.skill {
+  color: #52c41a;
+}
+
+.empty-icon.workflow {
+  color: #722ed1;
+}
+
+.empty-icon.generic {
+  color: #8c8c8c;
+}
+
+.empty-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 500;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.empty-description {
+  display: block;
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.empty-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.empty-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.empty-action-btn:active {
+  transform: translateY(0);
+}

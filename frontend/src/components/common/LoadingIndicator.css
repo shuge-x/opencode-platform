@@ -1,0 +1,129 @@
+/* 全局顶部进度条 */
+.global-loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.global-loading-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #1890ff 0%, #40a9ff 50%, #69c0ff 100%);
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.6);
+  transition: width 0.3s ease-out;
+  animation: loading-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 内联进度条（用于按钮、卡片等） */
+.inline-progress-bar {
+  position: relative;
+  height: 2px;
+  background: #f0f0f0;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.inline-progress-fill {
+  height: 100%;
+  background: #1890ff;
+  transition: width 0.3s ease-out;
+}
+
+/* 按钮加载状态增强 */
+.ant-btn.loading-active {
+  position: relative;
+  pointer-events: none;
+}
+
+.ant-btn.loading-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: button-loading-slide 1.5s ease-in-out infinite;
+}
+
+@keyframes button-loading-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 骨架屏动画增强 */
+.ant-skeleton.ant-skeleton-active .ant-skeleton-content .ant-skeleton-title,
+.ant-skeleton.ant-skeleton-active .ant-skeleton-content .ant-skeleton-paragraph > li {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* 滑入动画 */
+@keyframes slideInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* 响应式工具类 */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .show-on-mobile {
+    display: none !important;
+  }
+}

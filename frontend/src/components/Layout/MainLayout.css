@@ -1,0 +1,149 @@
+/* Main Layout Styles */
+
+.main-sider {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* Logo Container */
+.logo-container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.logo-container.collapsed {
+  padding: 0;
+  justify-content: center;
+}
+
+.logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-icon svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.logo-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.logo-tagline {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  margin-top: -2px;
+}
+
+/* Menu */
+.main-menu {
+  border-right: none !important;
+  margin-top: 8px;
+}
+
+.main-menu .ant-menu-item {
+  margin: 4px 8px !important;
+  border-radius: 6px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.main-menu .ant-menu-item-selected {
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%) !important;
+}
+
+/* Sider Footer */
+.sider-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  padding: 12px 24px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Main Layout */
+.main-layout {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+/* Header */
+.main-header {
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #262626;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Content */
+.main-content {
+  margin: 20px;
+  background: transparent;
+  padding: 0;
+  min-height: calc(100vh - 104px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    margin: 12px;
+  }
+
+  .main-header {
+    padding: 0 16px;
+  }
+
+  .header-title {
+    font-size: 14px;
+  }
+
+  .logo-container {
+    padding: 0 12px;
+  }
+
+  .logo-name {
+    font-size: 14px;
+  }
+}
