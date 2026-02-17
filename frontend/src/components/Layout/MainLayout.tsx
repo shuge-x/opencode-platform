@@ -1,5 +1,5 @@
 import { Layout, Menu } from 'antd'
-import { HomeOutlined, ChatOutlined, AppstoreOutlined, SettingOutlined, DashboardOutlined, StarOutlined } from '@ant-design/icons'
+import { HomeOutlined, ChatOutlined, AppstoreOutlined, SettingOutlined, DashboardOutlined, StarOutlined, ApartmentOutlined } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 
 const { Header, Sider, Content } = Layout
@@ -12,6 +12,7 @@ export default function MainLayout() {
     { key: '/', icon: <HomeOutlined />, label: '首页' },
     { key: '/chat', icon: <ChatOutlined />, label: '对话' },
     { key: '/skills', icon: <AppstoreOutlined />, label: '技能' },
+    { key: '/workflows', icon: <ApartmentOutlined />, label: '工作流' },
     { key: '/favorites', icon: <StarOutlined />, label: '收藏' },
     { key: '/files', icon: <AppstoreOutlined />, label: '文件' },
     { key: '/monitoring', icon: <DashboardOutlined />, label: '监控' },

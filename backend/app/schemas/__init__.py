@@ -26,6 +26,11 @@ from app.schemas.review import (
     RatingRequest, RatingResponse, RatingStatsResponse,
     BookmarkCreateRequest, BookmarkUpdateRequest, BookmarkResponse, BookmarkListResponse
 )
+# Workflow schemas
+from app.schemas.workflow import (
+    WorkflowCreate, WorkflowUpdate, WorkflowResponse, WorkflowListResponse,
+    WorkflowDefinition, NodeDefinition, EdgeDefinition, VariableDefinition
+)
 # Gateway schemas
 from app.schemas.gateway import (
     GatewayRouteCreate, GatewayRouteUpdate, GatewayRouteResponse, GatewayRouteListResponse,
@@ -64,6 +69,9 @@ __all__ = [
     "ReviewCreateRequest", "ReviewUpdateRequest", "ReviewResponse", "ReviewListResponse",
     "RatingRequest", "RatingResponse", "RatingStatsResponse",
     "BookmarkCreateRequest", "BookmarkUpdateRequest", "BookmarkResponse", "BookmarkListResponse",
+    # Workflow
+    "WorkflowCreate", "WorkflowUpdate", "WorkflowResponse", "WorkflowListResponse",
+    "WorkflowDefinition", "NodeDefinition", "EdgeDefinition", "VariableDefinition",
     # Gateway
     "GatewayRouteCreate", "GatewayRouteUpdate", "GatewayRouteResponse", "GatewayRouteListResponse",
     "ApiKeyCreate", "ApiKeyResponse", "ApiKeyCreateResponse", "ApiKeyListResponse",

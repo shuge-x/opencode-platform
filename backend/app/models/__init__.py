@@ -11,6 +11,8 @@ from app.models.published_skill import PublishedSkill, SkillPackage, SkillPermis
 from app.models.category import SkillCategory, SkillCategoryMapping
 from app.models.gateway import GatewayRoute, ApiKey, RateLimitLog
 from app.models.skill_invocation_log import SkillInvocationLog, SkillErrorLog
+# Workflow
+from app.models.workflow import Workflow
 # Billing
 from app.models.billing import (
     BillingPlan, Subscription, BillingUsage, BillingBill,
@@ -27,6 +29,8 @@ __all__ = [
     "GatewayRoute", "ApiKey", "RateLimitLog",
     # Monitoring
     "SkillInvocationLog", "SkillErrorLog",
+    # Workflow
+    "Workflow",
     # Billing
     "BillingPlan", "Subscription", "BillingUsage", "BillingBill",
     "BillingPlanType", "BillingCycle", "BillingUsageType", "SubscriptionStatus", "BillStatus"

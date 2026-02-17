@@ -14,7 +14,7 @@ from alembic import context
 
 # 导入所有模型以便Alembic能检测到
 from app.database import Base
-from app.models import User, Session, Skill, App, File  # noqa
+from app.models import User, Session, Skill, App, File, Workflow  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
