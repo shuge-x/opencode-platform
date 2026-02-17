@@ -1,0 +1,312 @@
+{
+  "templates": [
+    {
+      "id": "data-processing",
+      "name": "数据处理工作流",
+      "description": "从数据源获取数据，进行处理和转换，最后存储结果",
+      "category": "数据处理",
+      "icon": "database",
+      "definition": {
+        "nodes": [
+          {
+            "id": "start",
+            "type": "start",
+            "position": {"x": 100, "y": 100},
+            "data": {"label": "开始", "type": "start"}
+          },
+          {
+            "id": "fetch_data",
+            "type": "skill",
+            "position": {"x": 300, "y": 100},
+            "data": {
+              "label": "获取数据",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "data_fetcher",
+              "inputMapping": {},
+              "outputMapping": {"data": "raw_data"}
+            }
+          },
+          {
+            "id": "transform",
+            "type": "transform",
+            "position": {"x": 500, "y": 100},
+            "data": {
+              "label": "数据转换",
+              "type": "transform",
+              "config": {
+                "type": "expression",
+                "expression": "$nodes.fetch_data.output.data"
+              }
+            }
+          },
+          {
+            "id": "store",
+            "type": "skill",
+            "position": {"x": 700, "y": 100},
+            "data": {
+              "label": "存储结果",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "data_storage",
+              "inputMapping": {"data": "$nodes.transform.output.result"},
+              "outputMapping": {}
+            }
+          },
+          {
+            "id": "end",
+            "type": "end",
+            "position": {"x": 900, "y": 100},
+            "data": {"label": "结束", "type": "end"}
+          }
+        ],
+        "edges": [
+          {"id": "e1", "source": "start", "target": "fetch_data"},
+          {"id": "e2", "source": "fetch_data", "target": "transform"},
+          {"id": "e3", "source": "transform", "target": "store"},
+          {"id": "e4", "source": "store", "target": "end"}
+        ]
+      },
+      "variables": [
+        {"name": "data_source", "type": "string", "required": true, "description": "数据源 URL"},
+        {"name": "output_path", "type": "string", "required": true, "description": "输出路径"}
+      ]
+    },
+    {
+      "id": "conditional-processing",
+      "name": "条件分支工作流",
+      "description": "根据条件判断执行不同的处理分支",
+      "category": "条件处理",
+      "icon": "fork",
+      "definition": {
+        "nodes": [
+          {
+            "id": "start",
+            "type": "start",
+            "position": {"x": 100, "y": 150},
+            "data": {"label": "开始", "type": "start"}
+          },
+          {
+            "id": "condition",
+            "type": "condition",
+            "position": {"x": 300, "y": 150},
+            "data": {
+              "label": "条件判断",
+              "type": "condition",
+              "config": {
+                "conditions": [
+                  {"type": "comparison", "variable": "$input.score", "operator": "gte", "value": 80}
+                ]
+              }
+            }
+          },
+          {
+            "id": "process_high",
+            "type": "skill",
+            "position": {"x": 500, "y": 80},
+            "data": {
+              "label": "高分处理",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "high_score_handler",
+              "inputMapping": {},
+              "outputMapping": {}
+            }
+          },
+          {
+            "id": "process_low",
+            "type": "skill",
+            "position": {"x": 500, "y": 220},
+            "data": {
+              "label": "普通处理",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "normal_handler",
+              "inputMapping": {},
+              "outputMapping": {}
+            }
+          },
+          {
+            "id": "end",
+            "type": "end",
+            "position": {"x": 700, "y": 150},
+            "data": {"label": "结束", "type": "end"}
+          }
+        ],
+        "edges": [
+          {"id": "e1", "source": "start", "target": "condition"},
+          {"id": "e2", "source": "condition", "target": "process_high", "sourceHandle": "true"},
+          {"id": "e3", "source": "condition", "target": "process_low", "sourceHandle": "false"},
+          {"id": "e4", "source": "process_high", "target": "end"},
+          {"id": "e5", "source": "process_low", "target": "end"}
+        ]
+      },
+      "variables": [
+        {"name": "score", "type": "number", "required": true, "description": "分数（0-100）"}
+      ]
+    },
+    {
+      "id": "parallel-processing",
+      "name": "并行处理工作流",
+      "description": "同时执行多个独立任务，最后汇总结果",
+      "category": "并行处理",
+      "icon": "branches",
+      "definition": {
+        "nodes": [
+          {
+            "id": "start",
+            "type": "start",
+            "position": {"x": 100, "y": 150},
+            "data": {"label": "开始", "type": "start"}
+          },
+          {
+            "id": "task1",
+            "type": "skill",
+            "position": {"x": 300, "y": 50},
+            "data": {
+              "label": "任务1",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "task_1",
+              "inputMapping": {},
+              "outputMapping": {"result": "task1_result"}
+            }
+          },
+          {
+            "id": "task2",
+            "type": "skill",
+            "position": {"x": 300, "y": 150},
+            "data": {
+              "label": "任务2",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "task_2",
+              "inputMapping": {},
+              "outputMapping": {"result": "task2_result"}
+            }
+          },
+          {
+            "id": "task3",
+            "type": "skill",
+            "position": {"x": 300, "y": 250},
+            "data": {
+              "label": "任务3",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "task_3",
+              "inputMapping": {},
+              "outputMapping": {"result": "task3_result"}
+            }
+          },
+          {
+            "id": "merge",
+            "type": "transform",
+            "position": {"x": 500, "y": 150},
+            "data": {
+              "label": "汇总结果",
+              "type": "transform",
+              "config": {
+                "type": "merge",
+                "sources": [
+                  "$nodes.task1.output",
+                  "$nodes.task2.output",
+                  "$nodes.task3.output"
+                ]
+              }
+            }
+          },
+          {
+            "id": "end",
+            "type": "end",
+            "position": {"x": 700, "y": 150},
+            "data": {"label": "结束", "type": "end"}
+          }
+        ],
+        "edges": [
+          {"id": "e1", "source": "start", "target": "task1"},
+          {"id": "e2", "source": "start", "target": "task2"},
+          {"id": "e3", "source": "start", "target": "task3"},
+          {"id": "e4", "source": "task1", "target": "merge"},
+          {"id": "e5", "source": "task2", "target": "merge"},
+          {"id": "e6", "source": "task3", "target": "merge"},
+          {"id": "e7", "source": "merge", "target": "end"}
+        ]
+      },
+      "variables": [
+        {"name": "input_data", "type": "object", "required": true, "description": "输入数据"}
+      ]
+    },
+    {
+      "id": "error-handling",
+      "name": "错误处理工作流",
+      "description": "带错误处理和重试机制的容错工作流",
+      "category": "错误处理",
+      "icon": "safety",
+      "definition": {
+        "nodes": [
+          {
+            "id": "start",
+            "type": "start",
+            "position": {"x": 100, "y": 100},
+            "data": {"label": "开始", "type": "start"}
+          },
+          {
+            "id": "risky_task",
+            "type": "skill",
+            "position": {"x": 300, "y": 100},
+            "data": {
+              "label": "可能失败的任务",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "risky_operation",
+              "config": {"params": {}},
+              "retry": {"max_retries": 3, "backoff": "exponential", "initial_delay": 1.0},
+              "error_handling": {"fallback_node": "fallback", "continue_on_error": false}
+            }
+          },
+          {
+            "id": "success_handler",
+            "type": "skill",
+            "position": {"x": 500, "y": 50},
+            "data": {
+              "label": "成功处理",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "success_handler",
+              "inputMapping": {},
+              "outputMapping": {}
+            }
+          },
+          {
+            "id": "fallback",
+            "type": "skill",
+            "position": {"x": 500, "y": 150},
+            "data": {
+              "label": "失败回退",
+              "type": "skill",
+              "skillId": "",
+              "skillName": "fallback_handler",
+              "inputMapping": {},
+              "outputMapping": {}
+            }
+          },
+          {
+            "id": "end",
+            "type": "end",
+            "position": {"x": 700, "y": 100},
+            "data": {"label": "结束", "type": "end"}
+          }
+        ],
+        "edges": [
+          {"id": "e1", "source": "start", "target": "risky_task"},
+          {"id": "e2", "source": "risky_task", "target": "success_handler"},
+          {"id": "e3", "source": "fallback", "target": "end"},
+          {"id": "e4", "source": "success_handler", "target": "end"}
+        ]
+      },
+      "variables": [
+        {"name": "operation_params", "type": "object", "required": true, "description": "操作参数"}
+      ]
+    }
+  ]
+}
