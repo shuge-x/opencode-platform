@@ -1,0 +1,43 @@
+.variable-panel {
+  background: #fff;
+  border-left: 1px solid #e8e8e8;
+  width: 280px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.variable-collapse {
+  border: none;
+  background: transparent;
+}
+
+.variable-collapse .ant-collapse-header {
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.variable-list {
+  padding: 12px;
+}
+
+.empty-variables {
+  text-align: center;
+  padding: 24px;
+}
+
+.variable-item {
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.variable-item:last-child {
+  border-bottom: none;
+}
+
+.variable-item .ant-list-item-meta-title {
+  margin-bottom: 4px;
+}
+
+.variable-item .ant-list-item-meta-description {
+  font-size: 12px;
+}

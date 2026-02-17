@@ -1,0 +1,185 @@
+/* 基础节点样式 */
+.workflow-node {
+  min-width: 160px;
+  max-width: 220px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+  border: 2px solid #d9d9d9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.workflow-node:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.workflow-node.selected {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 节点图标 */
+.node-icon {
+  font-size: 18px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+/* 节点内容 */
+.node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.node-label {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.node-description {
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 节点标签 */
+.node-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.node-tag {
+  font-size: 11px;
+  padding: 0 6px;
+  margin: 0;
+  line-height: 18px;
+}
+
+/* 连接点样式 */
+.node-handle {
+  width: 10px;
+  height: 10px;
+  background: #1890ff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.node-handle:hover {
+  transform: scale(1.3);
+  background: #40a9ff;
+}
+
+/* 条件节点特有样式 */
+.condition-node {
+  border-color: #fa8c16;
+  background: linear-gradient(135deg, #fff7e6 0%, #fff 100%);
+}
+
+.condition-node .node-icon {
+  color: #fa8c16;
+}
+
+.condition-node.selected {
+  border-color: #fa8c16;
+  box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.2);
+}
+
+/* 条件节点 Handle 标签 */
+.handle-label {
+  position: absolute;
+  bottom: -20px;
+  font-size: 11px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.true-label {
+  color: #52c41a;
+}
+
+.false-label {
+  color: #ff4d4f;
+}
+
+.true-handle {
+  background: #52c41a !important;
+}
+
+.false-handle {
+  background: #ff4d4f !important;
+}
+
+/* 数据变换节点特有样式 */
+.transform-node {
+  border-color: #722ed1;
+  background: linear-gradient(135deg, #f9f0ff 0%, #fff 100%);
+}
+
+.transform-node .node-icon {
+  color: #722ed1;
+}
+
+.transform-node.selected {
+  border-color: #722ed1;
+  box-shadow: 0 0 0 2px rgba(114, 46, 209, 0.2);
+}
+
+/* 技能节点特有样式 */
+.skill-node {
+  border-color: #1890ff;
+  background: linear-gradient(135deg, #e6f7ff 0%, #fff 100%);
+}
+
+.skill-node .node-icon {
+  color: #1890ff;
+}
+
+.skill-node.selected {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 开始节点特有样式 */
+.start-node {
+  border-color: #52c41a;
+  background: linear-gradient(135deg, #f6ffed 0%, #fff 100%);
+}
+
+.start-node .node-icon {
+  color: #52c41a;
+}
+
+.start-node.selected {
+  border-color: #52c41a;
+  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
+}
+
+/* 结束节点特有样式 */
+.end-node {
+  border-color: #ff4d4f;
+  background: linear-gradient(135deg, #fff1f0 0%, #fff 100%);
+}
+
+.end-node .node-icon {
+  color: #ff4d4f;
+}
+
+.end-node.selected {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* 节点导出 */
+.node-index {
+  display: flex;
+  flex-direction: column;
+}

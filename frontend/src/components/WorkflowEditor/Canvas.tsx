@@ -1,144 +1,142 @@
-import React, { useCallback, useRef, DragEvent } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
   addEdge,
-  Connection,
-  OnNodesChange,
-  OnEdgesChange,
-  applyNodeChanges,
-  applyEdgeChanges,
-  NodeTypes,
-  ReactFlowInstance,
+  useNodesState,
+  useEdgesState,
+  type Connection,
+  type Edge,
+  BackgroundVariant,
+  type NodeTypes,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { useWorkflowStore, WorkflowNodeData } from '@/stores/workflowStore'
-import { Node, Edge } from '@xyflow/react'
-import StartNode from './nodes/StartNode'
-import EndNode from './nodes/EndNode'
-import SkillNode from './nodes/SkillNode'
 
+import {
+  StartNode,
+  EndNode,
+  SkillNode,
+  ConditionNode,
+  TransformNode,
+} from './nodes'
+import { useWorkflowStore } from '@/stores/workflowStore'
+import type { WorkflowNode, WorkflowEdge } from '@/types/workflow'
+
+// 注册节点类型
 const nodeTypes: NodeTypes = {
   start: StartNode,
   end: EndNode,
   skill: SkillNode,
+  condition: ConditionNode,
+  transform: TransformNode,
 }
 
-const Canvas: React.FC = () => {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null)
-  
-  const {
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    addNode,
-    setSelectedNode,
-    selectedNode,
-  } = useWorkflowStore()
-  
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => {
-      setNodes(applyNodeChanges(changes, nodes) as Node<WorkflowNodeData>[])
+interface CanvasProps {
+  className?: string
+}
+
+export default function Canvas({ className }: CanvasProps) {
+  const { nodes, edges, setNodes, setEdges, setSelectedNode } = useWorkflowStore()
+
+  // 转换节点为 React Flow 格式
+  const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes)
+  const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges)
+
+  // 同步节点变化到 store
+  const handleNodesChange = useCallback(
+    (changes: Parameters<typeof onNodesChange>[0]) => {
+      onNodesChange(changes)
+      // 延迟同步到 store，避免频繁更新
+      setTimeout(() => {
+        setNodes(localNodes as WorkflowNode[])
+      }, 0)
     },
-    [nodes, setNodes]
+    [onNodesChange, localNodes, setNodes]
   )
-  
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => {
-      setEdges(applyEdgeChanges(changes, edges))
+
+  // 同步边变化到 store
+  const handleEdgesChange = useCallback(
+    (changes: Parameters<typeof onEdgesChange>[0]) => {
+      onEdgesChange(changes)
+      setTimeout(() => {
+        setEdges(localEdges as WorkflowEdge[])
+      }, 0)
     },
-    [edges, setEdges]
+    [onEdgesChange, localEdges, setEdges]
   )
-  
+
+  // 处理新连接
   const onConnect = useCallback(
-    (connection: Connection) => {
-      setEdges(addEdge(connection, edges))
+    (params: Connection) => {
+      const newEdge = {
+        ...params,
+        id: `edge-${Date.now()}`,
+        animated: true,
+      } as WorkflowEdge
+      setLocalEdges((eds) => addEdge(newEdge, eds))
+      setEdges([...localEdges, newEdge] as WorkflowEdge[])
     },
-    [edges, setEdges]
+    [localEdges, setEdges, setLocalEdges]
   )
-  
-  const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.dataTransfer.dropEffect = 'move'
-  }, [])
-  
-  const onDrop = useCallback(
-    (event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault()
-      
-      const type = event.dataTransfer.getData('application/reactflow')
-      
-      if (!type || !reactFlowInstance) {
-        return
-      }
-      
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      })
-      
-      const newNode: Node<WorkflowNodeData> = {
-        id: `${type}_${Date.now()}`,
-        type,
-        position,
-        data: {
-          label: type === 'start' ? '开始' : type === 'end' ? '结束' : '技能节点',
-          type: type as 'start' | 'end' | 'skill',
-        },
-      }
-      
-      addNode(newNode)
-    },
-    [reactFlowInstance, addNode]
-  )
-  
+
+  // 选中节点
   const onNodeClick = useCallback(
-    (event: React.MouseEvent, node: Node) => {
+    (_: React.MouseEvent, node: { id: string }) => {
       setSelectedNode(node.id)
     },
     [setSelectedNode]
   )
-  
+
+  // 点击画布空白处取消选中
   const onPaneClick = useCallback(() => {
     setSelectedNode(null)
   }, [setSelectedNode])
-  
+
+  // MiniMap 节点颜色
+  const nodeColor = useMemo(() => {
+    return (node: { type?: string }) => {
+      switch (node.type) {
+        case 'start':
+          return '#52c41a'
+        case 'end':
+          return '#ff4d4f'
+        case 'skill':
+          return '#1890ff'
+        case 'condition':
+          return '#fa8c16'
+        case 'transform':
+          return '#722ed1'
+        default:
+          return '#d9d9d9'
+      }
+    }
+  }, [])
+
   return (
-    <div ref={reactFlowWrapper} style={{ width: '100%', height: '100%' }}>
+    <div className={className} style={{ width: '100%', height: '100%' }}>
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        nodes={localNodes}
+        edges={localEdges}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
-        onInit={setReactFlowInstance}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
         fitView
         snapToGrid
         snapGrid={[15, 15]}
-        style={{ background: '#f5f5f5' }}
+        defaultEdgeOptions={{
+          animated: true,
+          style: { strokeWidth: 2, stroke: '#1890ff' },
+        }}
       >
-        <Background color="#aaa" gap={16} />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
         <Controls />
-        <MiniMap
-          nodeStrokeWidth={3}
-          zoomable
-          pannable
-          style={{
-            background: '#fff',
-          }}
-        />
+        <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
       </ReactFlow>
     </div>
   )
 }
-
-export default Canvas

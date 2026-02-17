@@ -1,148 +1,211 @@
 import { create } from 'zustand'
-import { Node, Edge, Connection } from '@xyflow/react'
-
-export interface WorkflowNodeData {
-  label: string
-  type: 'start' | 'end' | 'skill'
-  skillId?: string
-  skillName?: string
-  config?: Record<string, any>
-}
-
-export interface Workflow {
-  id: string
-  name: string
-  description: string
-  nodes: Node<WorkflowNodeData>[]
-  edges: Edge[]
-  variables: Variable[]
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface Variable {
-  name: string
-  type: 'string' | 'number' | 'boolean' | 'object'
-  defaultValue?: any
-  description?: string
-}
+import type { 
+  Workflow, 
+  WorkflowNode, 
+  WorkflowEdge, 
+  WorkflowVariable,
+  CreateWorkflowRequest,
+  UpdateWorkflowRequest
+} from '@/types/workflow'
 
 interface WorkflowState {
   // 当前工作流
   currentWorkflow: Workflow | null
+  nodes: WorkflowNode[]
+  edges: WorkflowEdge[]
+  variables: WorkflowVariable[]
   
-  // 编辑器状态
-  nodes: Node<WorkflowNodeData>[]
-  edges: Edge[]
+  // UI 状态
   selectedNode: string | null
-  
-  // 工作流列表
-  workflows: Workflow[]
-  
-  // 变量
-  variables: Variable[]
-  
-  // 执行状态
   isExecuting: boolean
+  isDirty: boolean
+  loading: boolean
   
-  // Actions
+  // Actions - 工作流管理
   setCurrentWorkflow: (workflow: Workflow | null) => void
-  setNodes: (nodes: Node<WorkflowNodeData>[]) => void
-  setEdges: (edges: Edge[]) => void
-  addNode: (node: Node<WorkflowNodeData>) => void
-  updateNode: (nodeId: string, data: Partial<WorkflowNodeData>) => void
+  createNewWorkflow: () => void
+  
+  // Actions - 节点管理
+  setNodes: (nodes: WorkflowNode[]) => void
+  addNode: (node: WorkflowNode) => void
+  updateNode: (nodeId: string, data: Partial<WorkflowNode['data']>) => void
   removeNode: (nodeId: string) => void
+  
+  // Actions - 连接管理
+  setEdges: (edges: WorkflowEdge[]) => void
+  addEdge: (edge: WorkflowEdge) => void
+  removeEdge: (edgeId: string) => void
+  
+  // Actions - 变量管理
+  setVariables: (variables: WorkflowVariable[]) => void
+  addVariable: (variable: WorkflowVariable) => void
+  updateVariable: (variableId: string, updates: Partial<WorkflowVariable>) => void
+  removeVariable: (variableId: string) => void
+  
+  // Actions - UI 状态
   setSelectedNode: (nodeId: string | null) => void
-  onConnect: (connection: Connection) => void
-  setWorkflows: (workflows: Workflow[]) => void
-  addVariable: (variable: Variable) => void
-  removeVariable: (name: string) => void
   setIsExecuting: (isExecuting: boolean) => void
+  setIsDirty: (isDirty: boolean) => void
+  setLoading: (loading: boolean) => void
+  
+  // Actions - 保存
+  getWorkflowDefinition: () => CreateWorkflowRequest
+  loadWorkflowDefinition: (workflow: Workflow) => void
   reset: () => void
 }
+
+const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
 const initialState = {
   currentWorkflow: null,
   nodes: [],
   edges: [],
-  selectedNode: null,
-  workflows: [],
   variables: [],
+  selectedNode: null,
   isExecuting: false,
+  isDirty: false,
+  loading: false,
 }
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   ...initialState,
 
+  // 工作流管理
   setCurrentWorkflow: (workflow) => {
+    if (workflow) {
+      set({
+        currentWorkflow: workflow,
+        nodes: workflow.definition.nodes,
+        edges: workflow.definition.edges,
+        variables: workflow.variables,
+        isDirty: false,
+      })
+    } else {
+      set(initialState)
+    }
+  },
+
+  createNewWorkflow: () => {
+    const startNodeId = generateId()
+    const startNode: WorkflowNode = {
+      id: startNodeId,
+      type: 'start',
+      position: { x: 250, y: 50 },
+      data: {
+        type: 'start',
+        label: '开始',
+        description: '工作流入口',
+      },
+    }
+
+    const endNodeId = generateId()
+    const endNode: WorkflowNode = {
+      id: endNodeId,
+      type: 'end',
+      position: { x: 250, y: 400 },
+      data: {
+        type: 'end',
+        label: '结束',
+        description: '工作流出口',
+      },
+    }
+
     set({
-      currentWorkflow: workflow,
-      nodes: workflow?.nodes || [],
-      edges: workflow?.edges || [],
-      variables: workflow?.variables || [],
+      currentWorkflow: null,
+      nodes: [startNode, endNode],
+      edges: [],
+      variables: [],
+      selectedNode: null,
+      isDirty: true,
     })
   },
 
-  setNodes: (nodes) => set({ nodes }),
-  
-  setEdges: (edges) => set({ edges }),
+  // 节点管理
+  setNodes: (nodes) => set({ nodes, isDirty: true }),
 
-  addNode: (node) => {
-    set((state) => ({
-      nodes: [...state.nodes, node],
-    }))
-  },
+  addNode: (node) => set((state) => ({
+    nodes: [...state.nodes, node],
+    isDirty: true,
+  })),
 
-  updateNode: (nodeId, data) => {
-    set((state) => ({
-      nodes: state.nodes.map((node) =>
-        node.id === nodeId
-          ? { ...node, data: { ...node.data, ...data } }
-          : node
-      ),
-    }))
-  },
+  updateNode: (nodeId, data) => set((state) => ({
+    nodes: state.nodes.map((node) =>
+      node.id === nodeId ? { ...node, data: { ...node.data, ...data } } : node
+    ),
+    isDirty: true,
+  })),
 
-  removeNode: (nodeId) => {
-    set((state) => ({
-      nodes: state.nodes.filter((node) => node.id !== nodeId),
-      edges: state.edges.filter(
-        (edge) => edge.source !== nodeId && edge.target !== nodeId
-      ),
-      selectedNode: state.selectedNode === nodeId ? null : state.selectedNode,
-    }))
-  },
+  removeNode: (nodeId) => set((state) => ({
+    nodes: state.nodes.filter((node) => node.id !== nodeId),
+    edges: state.edges.filter(
+      (edge) => edge.source !== nodeId && edge.target !== nodeId
+    ),
+    selectedNode: state.selectedNode === nodeId ? null : state.selectedNode,
+    isDirty: true,
+  })),
 
+  // 连接管理
+  setEdges: (edges) => set({ edges, isDirty: true }),
+
+  addEdge: (edge) => set((state) => ({
+    edges: [...state.edges, edge],
+    isDirty: true,
+  })),
+
+  removeEdge: (edgeId) => set((state) => ({
+    edges: state.edges.filter((edge) => edge.id !== edgeId),
+    isDirty: true,
+  })),
+
+  // 变量管理
+  setVariables: (variables) => set({ variables, isDirty: true }),
+
+  addVariable: (variable) => set((state) => ({
+    variables: [...state.variables, variable],
+    isDirty: true,
+  })),
+
+  updateVariable: (variableId, updates) => set((state) => ({
+    variables: state.variables.map((v) =>
+      v.id === variableId ? { ...v, ...updates } : v
+    ),
+    isDirty: true,
+  })),
+
+  removeVariable: (variableId) => set((state) => ({
+    variables: state.variables.filter((v) => v.id !== variableId),
+    isDirty: true,
+  })),
+
+  // UI 状态
   setSelectedNode: (nodeId) => set({ selectedNode: nodeId }),
-
-  onConnect: (connection) => {
-    const { edges } = get()
-    const newEdge: Edge = {
-      id: `e${connection.source}-${connection.target}`,
-      source: connection.source!,
-      target: connection.target!,
-      sourceHandle: connection.sourceHandle || undefined,
-      targetHandle: connection.targetHandle || undefined,
-    }
-    set({ edges: [...edges, newEdge] })
-  },
-
-  setWorkflows: (workflows) => set({ workflows }),
-
-  addVariable: (variable) => {
-    set((state) => ({
-      variables: [...state.variables, variable],
-    }))
-  },
-
-  removeVariable: (name) => {
-    set((state) => ({
-      variables: state.variables.filter((v) => v.name !== name),
-    }))
-  },
-
   setIsExecuting: (isExecuting) => set({ isExecuting }),
+  setIsDirty: (isDirty) => set({ isDirty }),
+  setLoading: (loading) => set({ loading }),
+
+  // 保存相关
+  getWorkflowDefinition: () => {
+    const state = get()
+    return {
+      name: state.currentWorkflow?.name || '未命名工作流',
+      description: state.currentWorkflow?.description || '',
+      definition: {
+        nodes: state.nodes,
+        edges: state.edges,
+      },
+      variables: state.variables,
+    }
+  },
+
+  loadWorkflowDefinition: (workflow) => {
+    set({
+      currentWorkflow: workflow,
+      nodes: workflow.definition.nodes,
+      edges: workflow.definition.edges,
+      variables: workflow.variables,
+      isDirty: false,
+    })
+  },
 
   reset: () => set(initialState),
 }))
