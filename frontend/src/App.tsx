@@ -10,7 +10,7 @@ import FilesPage from '@/pages/Files'
 import SettingsPage from '@/pages/Settings'
 import FavoritesPage from '@/pages/FavoritesPage'
 import MonitoringDashboard from '@/pages/Monitoring'
-import { WorkflowList, WorkflowEditor } from '@/pages/Workflows'
+import { WorkflowList, WorkflowEditor, ExecutionHistory, ExecutionDetail } from '@/pages/Workflows'
 import { useAuthStore } from '@/stores/authStore'
 
 // Protected Route
@@ -46,6 +46,8 @@ function App() {
             <Route path="workflows" element={<WorkflowList />} />
             <Route path="workflows/new" element={<WorkflowEditor />} />
             <Route path="workflows/:id/edit" element={<WorkflowEditor />} />
+            <Route path="workflows/:id/executions" element={<ExecutionHistory />} />
+            <Route path="executions/:id" element={<ExecutionDetail />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

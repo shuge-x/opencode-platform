@@ -1,0 +1,106 @@
+.execution-detail-page {
+  padding: 24px;
+}
+
+.execution-detail-page.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.execution-detail-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.execution-detail-page .step-item {
+  padding: 8px 0;
+}
+
+.execution-detail-page .step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.execution-detail-page .step-details {
+  padding-left: 4px;
+}
+
+.execution-detail-page .data-panel {
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.execution-detail-page .data-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.execution-detail-page .json-viewer {
+  margin: 0;
+  padding: 12px;
+  background: #f5f5f5;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  overflow: auto;
+  max-height: 400px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .execution-detail-page {
+    padding: 16px;
+  }
+
+  .execution-detail-page .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .execution-detail-page .ant-descriptions {
+    overflow-x: auto;
+  }
+
+  .execution-detail-page .json-viewer {
+    font-size: 11px;
+  }
+}
+
+/* 步骤进度样式 */
+.execution-detail-page .ant-steps {
+  margin-bottom: 24px;
+}
+
+.execution-detail-page .ant-steps-item-description {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Timeline 样式优化 */
+.execution-detail-page .ant-timeline {
+  padding-top: 8px;
+}
+
+.execution-detail-page .ant-timeline-item-content {
+  padding-bottom: 16px;
+}
+
+/* Alert 样式 */
+.execution-detail-page .ant-alert {
+  margin-bottom: 0;
+}

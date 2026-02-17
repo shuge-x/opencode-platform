@@ -1,0 +1,49 @@
+.execution-history-page {
+  padding: 24px;
+}
+
+.execution-history-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.execution-history-page .pagination-wrapper {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .execution-history-page {
+    padding: 16px;
+  }
+
+  .execution-history-page .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .execution-history-page .ant-table {
+    overflow-x: auto;
+  }
+
+  .execution-history-page .pagination-wrapper {
+    justify-content: center;
+  }
+
+  .execution-history-page .ant-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* 统计卡片响应式 */
+@media (max-width: 576px) {
+  .execution-history-page .ant-col {
+    margin-bottom: 8px;
+  }
+}
